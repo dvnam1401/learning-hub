@@ -11,6 +11,7 @@
     "start": "next start",
     "lint": "next lint",
     "build:catalog": "node scripts/build-catalog.mjs",
+    "compress:search": "node scripts/compress-search-index.mjs",
     "cache:videos": "node scripts/cache-drive-videos.mjs",
     "probe:drive": "node scripts/probe-drive-file.mjs",
     "db:migrate": "wrangler d1 migrations apply learning-hub-db --local",

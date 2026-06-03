@@ -1,4 +1,5 @@
 import fs from "fs";
+import zlib from "zlib";
 import readline from "readline";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -220,9 +221,17 @@ async function main() {
     path.join(OUT_DIR, "catalog-index.json"),
     JSON.stringify(catalogIndex)
   );
-  fs.writeFileSync(
-    path.join(OUT_DIR, "search-index.json"),
-    JSON.stringify(searchIndex)
+  const searchJson = JSON.stringify(searchIndex);
+  const searchPath = path.join(OUT_DIR, "search-index.json");
+  const searchGzPath = path.join(OUT_DIR, "search-index.json.gz");
+  fs.writeFileSync(searchPath, searchJson);
+  fs.writeFileSync(searchGzPath, zlib.gzipSync(searchJson));
+  console.log(
+    "search-index:",
+    (fs.statSync(searchPath).size / 1024 / 1024).toFixed(2),
+    "MB -> gzip",
+    (fs.statSync(searchGzPath).size / 1024 / 1024).toFixed(2),
+    "MB"
   );
   fs.writeFileSync(
     path.join(OUT_DIR, "catalog-stats.json"),

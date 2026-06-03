@@ -23,10 +23,8 @@ data/app.db-wal
 data/*.db
 data/*.db-*
 
-data/courses/
-data/catalog-index.json
 data/search-index.json
-data/catalog-stats.json
+
 data/video-cache/
 
 /img/

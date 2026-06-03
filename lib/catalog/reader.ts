@@ -1,4 +1,5 @@
 import fs from "fs";
+import zlib from "zlib";
 import path from "path";
 import type {
   CatalogCourse,
@@ -36,9 +37,16 @@ export function getCourseTree(courseId: string): CourseTreeNode | null {
 }
 
 export function getSearchIndex(): SearchIndexEntry[] {
-  const file = path.join(DATA_DIR, "search-index.json");
-  if (!fs.existsSync(file)) return [];
-  return JSON.parse(fs.readFileSync(file, "utf8")) as SearchIndexEntry[];
+  const jsonFile = path.join(DATA_DIR, "search-index.json");
+  if (fs.existsSync(jsonFile)) {
+    return JSON.parse(fs.readFileSync(jsonFile, "utf8")) as SearchIndexEntry[];
+  }
+  const gzFile = path.join(DATA_DIR, "search-index.json.gz");
+  if (fs.existsSync(gzFile)) {
+    const raw = zlib.gunzipSync(fs.readFileSync(gzFile));
+    return JSON.parse(raw.toString("utf8")) as SearchIndexEntry[];
+  }
+  return [];
 }
 
 export function findCourseInIndex(
