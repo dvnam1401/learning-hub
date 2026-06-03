@@ -20,13 +20,24 @@ function getSqlite(): DatabaseSync {
   return sqlite;
 }
 
+function cloudflareEnv() {
+  return {
+    accountId: process.env.CLOUDFLARE_ACCOUNT_ID?.trim(),
+    databaseId: process.env.CLOUDFLARE_D1_DATABASE_ID?.trim(),
+    token: process.env.CLOUDFLARE_API_TOKEN?.trim(),
+  };
+}
+
+function hasCloudflareEnv(): boolean {
+  const { accountId, databaseId, token } = cloudflareEnv();
+  return Boolean(accountId && databaseId && token);
+}
+
 async function queryRemote<T extends Row>(
   sql: string,
   params: unknown[] = []
 ): Promise<T[]> {
-  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-  const databaseId = process.env.CLOUDFLARE_D1_DATABASE_ID;
-  const token = process.env.CLOUDFLARE_API_TOKEN;
+  const { accountId, databaseId, token } = cloudflareEnv();
 
   if (!accountId || !databaseId || !token) {
     throw new Error("Cloudflare D1 credentials not configured");
@@ -44,30 +55,43 @@ async function queryRemote<T extends Row>(
     }
   );
 
-  const json = (await res.json()) as {
+  const raw = await res.text();
+  let json: {
     success: boolean;
     result?: Array<{ results: T[] }>;
     errors?: Array<{ message: string }>;
   };
+  try {
+    json = JSON.parse(raw) as typeof json;
+  } catch {
+    throw new Error(`D1 HTTP ${res.status}: invalid response`);
+  }
 
-  if (!json.success) {
-    throw new Error(json.errors?.[0]?.message ?? "D1 query failed");
+  if (!res.ok || !json.success) {
+    const msg =
+      json.errors?.[0]?.message ?? `D1 HTTP ${res.status}: query failed`;
+    throw new Error(msg);
   }
   return json.result?.[0]?.results ?? [];
 }
 
 function useRemote(): boolean {
-  return Boolean(
-    process.env.CLOUDFLARE_API_TOKEN &&
-      process.env.CLOUDFLARE_D1_DATABASE_ID &&
-      process.env.CLOUDFLARE_ACCOUNT_ID
-  );
+  return hasCloudflareEnv();
+}
+
+function assertDbBackend(): void {
+  if (process.env.VERCEL === "1" && !hasCloudflareEnv()) {
+    throw new Error(
+      "Vercel production requires CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_D1_DATABASE_ID, CLOUDFLARE_API_TOKEN"
+    );
+  }
 }
 
 export async function dbQuery<T extends Row = Row>(
   sql: string,
   params: unknown[] = []
 ): Promise<T[]> {
+  assertDbBackend();
   if (useRemote()) {
     return queryRemote<T>(sql, params);
   }

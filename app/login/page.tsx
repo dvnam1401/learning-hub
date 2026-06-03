@@ -18,15 +18,39 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-    const data = await res.json();
+    let res: Response;
+    try {
+      res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+    } catch {
+      setLoading(false);
+      setError("Không kết nối được máy chủ. Kiểm tra mạng hoặc URL deploy.");
+      return;
+    }
+    const text = await res.text();
     setLoading(false);
+    let data: { error?: string; user?: { role: string } } = {};
+    if (text) {
+      try {
+        data = JSON.parse(text) as typeof data;
+      } catch {
+        setError(
+          res.status === 401
+            ? "Deploy bị Vercel chặn (Deployment Protection)."
+            : `Máy chủ lỗi ${res.status}, phản hồi không phải JSON.`
+        );
+        return;
+      }
+    }
     if (!res.ok) {
-      setError(data.error ?? "Đăng nhập thất bại");
+      setError(data.error ?? `Đăng nhập thất bại (${res.status})`);
+      return;
+    }
+    if (!data.user) {
+      setError("Phản hồi đăng nhập không hợp lệ");
       return;
     }
     if (data.user.role === "ADMIN") router.push("/admin");
