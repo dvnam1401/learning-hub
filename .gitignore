@@ -1,0 +1,15 @@
+/node_modules
+/.next/
+/out/
+/build
+.DS_Store
+*.pem
+.env
+.env*.local
+.vercel
+.wrangler
+data/courses/
+data/catalog-index.json
+data/search-index.json
+data/catalog-stats.json
+data/video-cache/

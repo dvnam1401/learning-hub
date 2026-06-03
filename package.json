@@ -1,0 +1,43 @@
+{
+  "name": "learning-hub",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "build:catalog": "node scripts/build-catalog.mjs",
+    "cache:videos": "node scripts/cache-drive-videos.mjs",
+    "probe:drive": "node scripts/probe-drive-file.mjs",
+    "db:migrate": "wrangler d1 migrations apply learning-hub-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply learning-hub-db --remote",
+    "seed": "node mock/seed.mjs"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "googleapis": "^148.0.0",
+    "jose": "^6.0.10",
+    "lucide-react": "^0.511.0",
+    "minisearch": "^7.1.2",
+    "next": "^15.3.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^3.25.28"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.15.21",
+    "@types/react": "^19.1.4",
+    "@types/react-dom": "^19.1.5",
+    "eslint": "^9.27.0",
+    "eslint-config-next": "^15.3.3",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.14.4"
+  }
+}
