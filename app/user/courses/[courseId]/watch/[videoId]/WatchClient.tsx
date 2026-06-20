@@ -58,27 +58,36 @@ export function WatchClient({
     if (id) router.push(`/user/courses/${courseId}/watch/${id}`);
   }
 
-  if (!course || !tree) return <p className="text-white">Đang tải...</p>;
+  if (!course || !tree) {
+    return (
+      <div className="-mx-4 -mt-4 min-h-[calc(100vh-3.5rem)] bg-slate-900 lg:-m-6">
+        <div className="flex flex-col items-center justify-center gap-4 p-12 text-slate-400">
+          <div className="aspect-video w-full max-w-2xl animate-pulse rounded-xl bg-slate-800" />
+          <p className="text-sm">Đang tải video...</p>
+        </div>
+      </div>
+    );
+  }
 
   const showLessonInBreadcrumb =
     lessonScope && lessonScope.id !== tree.id;
 
   return (
-    <div className="-m-6 bg-slate-900 min-h-screen text-white">
-      <div className="border-b border-slate-700 px-6 py-3 text-sm text-slate-300">
-        <Link href={`/user/courses/${courseId}`} className="hover:text-white">
-          {course.name}
+    <div className="-mx-4 -mt-4 min-h-[calc(100vh-3.5rem)] bg-slate-900 text-white lg:-m-6">
+      <div className="border-b border-slate-700 px-4 py-3 text-sm text-slate-300 lg:px-6">
+        <Link href={`/user/courses/${courseId}`} className="transition-colors hover:text-white">
+          <span className="line-clamp-1">{course.name}</span>
         </Link>
         {showLessonInBreadcrumb && (
           <>
-            {" > "}
-            <span>{lessonScope.name}</span>
+            <span className="mx-1.5 text-slate-600">/</span>
+            <span className="text-slate-400">{lessonScope.name}</span>
           </>
         )}
-        {" > "}
-        <span>{videoName}</span>
+        <span className="mx-1.5 text-slate-600">/</span>
+        <span className="text-white">{videoName}</span>
       </div>
-      <div className="grid gap-6 p-6 lg:grid-cols-3">
+      <div className="grid gap-6 p-4 lg:grid-cols-3 lg:p-6">
         <div className="lg:col-span-2 space-y-4">
           <VideoPlayer
             fileId={videoId}

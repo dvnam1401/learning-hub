@@ -6,17 +6,14 @@ import {
   filterByCategoryPath,
   filterByTopCategory,
 } from "@/lib/catalog/categories";
-import { isGiftCourse } from "@/lib/catalog/gift";
-import {
-  computeGrantedSubfolders,
-  isBundledGiftCourse,
-  isBundledGiftUnlocked,
-} from "@/lib/catalog/bundled-gift";
+import { resolveCourseUnlocked } from "@/lib/catalog/folder-access";
+import { isBundledGiftCourse } from "@/lib/catalog/bundled-gift";
 import { excludeHiddenUserCourses } from "@/lib/catalog/hidden-categories";
 import {
   getCourseOverrides,
   getPendingAccessRequestCourseIds,
   getUserCourseIds,
+  getUserFolderGrantIds,
 } from "@/lib/db/repositories";
 
 export async function GET(request: NextRequest) {
@@ -34,6 +31,7 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(100, Math.max(1, parseInt(limitParam ?? "50", 10)));
   const granted = await getUserCourseIds(user.id);
   const grantedSet = new Set(granted);
+  const folderGrants = new Set(await getUserFolderGrantIds(user.id));
   const pendingAccess =
     user.role === "ADMIN"
       ? new Set<string>()
@@ -64,14 +62,8 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const grantedSubfolders =
-    user.role === "ADMIN" ? new Set<string>() : computeGrantedSubfolders(granted);
-
   const userHasCourse = (c: (typeof courses)[0]) =>
-    user.role === "ADMIN" ||
-    grantedSet.has(c.id) ||
-    isGiftCourse(c) ||
-    isBundledGiftUnlocked(c, grantedSet, grantedSubfolders);
+    resolveCourseUnlocked(c, user.role, grantedSet, folderGrants);
 
   if (user.role !== "ADMIN" && filter === "mine") {
     courses = courses.filter((c) => userHasCourse(c));

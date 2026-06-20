@@ -1,9 +1,8 @@
 import { getGiftCourseIds, isGiftCourse } from "@/lib/catalog/gift";
 import {
-  computeGrantedSubfolders,
   getBundledGiftForCourse,
-  isBundledGiftUnlocked,
 } from "@/lib/catalog/bundled-gift";
+import { resolveCourseUnlocked } from "@/lib/catalog/folder-access";
 import { findCourseInIndex } from "@/lib/catalog/reader";
 import { dbGet, dbQuery, dbRun, newId } from "./client";
 import type { CourseOverride, SessionUser } from "@/lib/types";
@@ -27,6 +26,41 @@ export async function getUserCourseIds(userId: string): Promise<string[]> {
   return rows.map((r) => r.course_id);
 }
 
+export async function getUserFolderGrantIds(userId: string): Promise<string[]> {
+  const rows = await dbQuery<{ folder_id: string }>(
+    "SELECT folder_id FROM user_folder_grants WHERE user_id = ?",
+    [userId]
+  );
+  return rows.map((r) => r.folder_id);
+}
+
+export async function grantFolderToUser(
+  userId: string,
+  folderId: string,
+  grantedBy: string | null
+): Promise<boolean> {
+  const exists = await dbGet(
+    "SELECT id FROM user_folder_grants WHERE user_id = ? AND folder_id = ?",
+    [userId, folderId]
+  );
+  if (exists) return false;
+  await dbRun(
+    `INSERT INTO user_folder_grants (id, user_id, folder_id, granted_by) VALUES (?, ?, ?, ?)`,
+    [newId(), userId, folderId, grantedBy]
+  );
+  return true;
+}
+
+export async function revokeFolderFromUser(
+  userId: string,
+  folderId: string
+): Promise<void> {
+  await dbRun(
+    "DELETE FROM user_folder_grants WHERE user_id = ? AND folder_id = ?",
+    [userId, folderId]
+  );
+}
+
 export async function getCourseOverrides(): Promise<CourseOverride[]> {
   return dbQuery<CourseOverride>("SELECT * FROM course_overrides");
 }
@@ -45,17 +79,10 @@ export async function hasCourseAccess(
 ): Promise<boolean> {
   if (role === "ADMIN") return true;
   const course = findCourseInIndex(courseId);
-  if (course && isGiftCourse(course)) return true;
-  const granted = await getUserCourseIds(userId);
-  const grantedSet = new Set(granted);
-  if (course && isBundledGiftUnlocked(course, grantedSet, computeGrantedSubfolders(granted))) {
-    return true;
-  }
-  const row = await dbGet(
-    "SELECT 1 FROM user_courses WHERE user_id = ? AND course_id = ?",
-    [userId, courseId]
-  );
-  return Boolean(row);
+  if (!course) return false;
+  const grantedSet = new Set(await getUserCourseIds(userId));
+  const folderGrants = new Set(await getUserFolderGrantIds(userId));
+  return resolveCourseUnlocked(course, role, grantedSet, folderGrants);
 }
 
 export async function grantCourseToUser(

@@ -41,24 +41,25 @@ export function Modal({
       <button
         type="button"
         aria-label="Đóng"
-        className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+        className="absolute inset-0 animate-fade-in bg-slate-900/50 backdrop-blur-sm"
         onClick={onClose}
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className={`relative z-10 w-full ${sizeStyles[size]} rounded-xl bg-white p-6 shadow-xl`}
+        className={`relative z-10 w-full animate-scale-in ${sizeStyles[size]} rounded-xl border border-border bg-card p-6 text-card-foreground shadow-xl`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-5 flex items-center justify-between">
-          <h2 id="modal-title" className="text-lg font-semibold text-slate-900">
+          <h2 id="modal-title" className="text-lg font-semibold text-foreground">
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+            aria-label="Đóng hộp thoại"
+            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
             <X size={20} />
           </button>

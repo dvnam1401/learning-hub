@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SidebarLogout } from "@/components/auth/SidebarLogout";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import {
   BookOpen,
   Bell,
@@ -29,7 +30,10 @@ export function UserSidebar({
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col overflow-y-auto bg-white p-4 shadow-sm">
+    <aside className="flex h-screen w-64 shrink-0 flex-col overflow-y-auto border-r border-border bg-sidebar p-4">
+      <div className="mb-4 flex items-center justify-end lg:hidden">
+        <ThemeToggle />
+      </div>
       <div className="mb-6 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-4 text-white">
         <p className="text-sm opacity-90">Chào mừng trở lại</p>
         <p className="font-semibold">{displayName}</p>
@@ -43,16 +47,16 @@ export function UserSidebar({
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 active
                   ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
-                  : "text-slate-600 hover:bg-slate-50"
+                  : "text-sidebar-foreground hover:bg-accent hover:text-foreground"
               }`}
             >
               <Icon size={18} />
               {label}
               {href.includes("notifications") && unread > 0 && (
-                <span className="ml-auto rounded-full bg-indigo-500 px-2 py-0.5 text-xs text-white">
+                <span className="ml-auto animate-pulse rounded-full bg-indigo-500 px-2 py-0.5 text-xs text-white">
                   {unread}
                 </span>
               )}
@@ -60,8 +64,12 @@ export function UserSidebar({
           );
         })}
       </nav>
-      <div className="mt-auto border-t border-slate-100 pt-3">
-        <SidebarLogout className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-red-50 hover:text-red-600" />
+      <div className="mt-auto space-y-2 border-t border-border pt-3">
+        <div className="hidden items-center justify-between px-3 lg:flex">
+          <span className="text-xs text-muted">Giao diện</span>
+          <ThemeToggle />
+        </div>
+        <SidebarLogout className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-red-500/10 hover:text-red-500" />
       </div>
     </aside>
   );

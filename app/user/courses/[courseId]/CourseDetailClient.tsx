@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { CourseTreeNode } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { CourseCurriculum } from "@/components/course/CourseCurriculum";
 import { getTopCategoryName } from "@/lib/catalog/categories";
 
@@ -57,7 +58,21 @@ export function CourseDetailClient({ courseId }: { courseId: string }) {
       .catch(() => undefined);
   }, [courseId, router]);
 
-  if (!course || !tree) return <p>Đang tải...</p>;
+  if (!course || !tree) {
+    return (
+      <div className="mx-auto max-w-4xl space-y-4">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-9 w-2/3" />
+        <Skeleton className="h-4 w-48" />
+        <Skeleton className="h-10 w-36 rounded-lg" />
+        <div className="mt-8 space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-14 w-full rounded-xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const start = firstVideo(tree);
   const resumeId = continueVideoId ?? start?.id;

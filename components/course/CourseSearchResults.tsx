@@ -1,7 +1,10 @@
 "use client";
 
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { CourseListItem } from "@/components/course/CourseListItem";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { CourseListSkeleton } from "@/components/ui/Skeleton";
 import {
   shortenCoursePath,
   type CourseSearchItem,
@@ -35,11 +38,17 @@ export function CourseSearchResults({
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
   if (loading) {
-    return <p className="text-slate-500">Đang tìm...</p>;
+    return <CourseListSkeleton count={5} />;
   }
 
   if (courses.length === 0) {
-    return <p className="text-slate-500">Không tìm thấy khóa học phù hợp.</p>;
+    return (
+      <EmptyState
+        icon={Search}
+        title="Không tìm thấy kết quả"
+        description="Thử từ khóa khác hoặc đổi bộ lọc."
+      />
+    );
   }
 
   if (variant === "admin") {
@@ -51,7 +60,7 @@ export function CourseSearchResults({
               key={c.id}
               type="button"
               onClick={() => onSelectCourse?.(c.id)}
-              className={`flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-indigo-200 ${
+              className={`flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all duration-200 hover:border-indigo-200 hover:shadow-md ${
                 c.hidden ? "opacity-60" : ""
               }`}
             >
@@ -104,7 +113,7 @@ export function CourseSearchResults({
                   : undefined
               }
             />
-            <p className="mt-1 pl-16 text-xs text-slate-400 line-clamp-1">
+            <p className="mt-1 pl-0 text-xs text-slate-400 line-clamp-1 sm:pl-16">
               {shortenCoursePath(c.path)}
             </p>
           </div>
@@ -134,7 +143,7 @@ function Pagination({
   onPageChange: (page: number) => void;
 }) {
   return (
-    <div className="mt-6 flex items-center justify-center gap-3">
+    <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
       <Button
         variant="secondary"
         disabled={page <= 1}

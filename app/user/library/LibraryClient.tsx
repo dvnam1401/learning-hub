@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, BookOpen, FolderOpen, Search } from "lucide-react";
 import { CategoryCard } from "@/components/course/CategoryCard";
 import { CourseFolderGroups } from "@/components/course/CourseFolderGroups";
 import { Toast, type ToastMessage } from "@/components/ui/Toast";
 import { CourseSearchBox } from "@/components/course/CourseSearchBox";
 import { CourseSearchResults } from "@/components/course/CourseSearchResults";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { CategoryGridSkeleton, CourseListSkeleton } from "@/components/ui/Skeleton";
 import {
   decodeCategoryParam,
   groupCoursesBySubCategory,
@@ -145,16 +147,18 @@ export function LibraryClient({ categoryParam }: { categoryParam: string | null 
   );
 
   const tabBar = (
-    <div className="flex gap-2">
+    <div className="flex gap-1" role="tablist" aria-label="Lọc khóa học">
       {(["all", "unlocked", "locked"] as Tab[]).map((t) => (
         <button
           key={t}
           type="button"
+          role="tab"
+          aria-selected={tab === t}
           onClick={() => setTab(t)}
-          className={`rounded-lg px-4 py-2 text-sm font-medium ${
+          className={`min-h-[44px] rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             tab === t
-              ? "border-b-2 border-indigo-600 text-indigo-600"
-              : "text-slate-600"
+              ? "bg-indigo-50 text-indigo-600"
+              : "text-slate-600 hover:bg-slate-100"
           }`}
         >
           {t === "all" ? "Tất cả" : t === "unlocked" ? "Đã mở" : "Chưa mở"}
@@ -171,8 +175,8 @@ export function LibraryClient({ categoryParam }: { categoryParam: string | null 
         <p className="mb-4 text-sm text-slate-500">
           Chọn danh mục hoặc tìm khóa học trên toàn thư viện
         </p>
-        <div className="mb-4 flex flex-wrap gap-4">
-          <CourseSearchBox value={q} onChange={setQ} />
+        <div className="mb-4 flex flex-wrap items-center gap-4">
+          <CourseSearchBox value={q} onChange={setQ} loading={search.loading && searching} />
           {searching && tabBar}
         </div>
         {searching ? (
@@ -188,9 +192,13 @@ export function LibraryClient({ categoryParam }: { categoryParam: string | null 
             requestingCourseId={requestingId}
           />
         ) : loading ? (
-          <p className="text-slate-500">Đang tải...</p>
+          <CategoryGridSkeleton />
         ) : categories.length === 0 ? (
-          <p className="text-slate-500">Chưa có danh mục khóa học.</p>
+          <EmptyState
+            icon={BookOpen}
+            title="Chưa có danh mục"
+            description="Danh mục khóa học sẽ xuất hiện sau khi đồng bộ."
+          />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {categories.map((cat) => (
@@ -220,8 +228,8 @@ export function LibraryClient({ categoryParam }: { categoryParam: string | null 
       <h1 className="mb-6 text-2xl font-bold">
         {stripOrderPrefix(categoryName || categoryKey)}
       </h1>
-      <div className="mb-4 flex flex-wrap gap-4">
-        <CourseSearchBox value={q} onChange={setQ} className="max-w-md" />
+      <div className="mb-4 flex flex-wrap items-center gap-4">
+        <CourseSearchBox value={q} onChange={setQ} className="max-w-md" loading={search.loading && searching} />
         {tabBar}
       </div>
       {searching ? (
@@ -237,9 +245,13 @@ export function LibraryClient({ categoryParam }: { categoryParam: string | null 
           requestingCourseId={requestingId}
         />
       ) : loading ? (
-        <p className="text-slate-500">Đang tải...</p>
+        <CourseListSkeleton count={6} />
       ) : courses.length === 0 ? (
-        <p className="text-slate-500">Không có khóa học trong danh mục này.</p>
+        <EmptyState
+          icon={FolderOpen}
+          title="Không có khóa học"
+          description="Danh mục này chưa có khóa học hoặc không khớp bộ lọc."
+        />
       ) : (
         <>
           <p className="mb-4 text-sm text-slate-500">{courses.length} khóa học</p>

@@ -2,11 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, BookOpen } from "lucide-react";
 import { CategoryCard } from "@/components/course/CategoryCard";
 import { CourseListItem } from "@/components/course/CourseListItem";
 import { CourseSearchBox } from "@/components/course/CourseSearchBox";
 import { CourseSearchResults } from "@/components/course/CourseSearchResults";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { CategoryGridSkeleton, CourseListSkeleton } from "@/components/ui/Skeleton";
 import {
   useCourseSearch,
   useDebouncedValue,
@@ -142,7 +144,7 @@ export function MyCoursesClient({
           Chọn danh mục hoặc tìm trong khóa đã được cấp
         </p>
         <div className="mb-6">
-          <CourseSearchBox value={q} onChange={setQ} />
+          <CourseSearchBox value={q} onChange={setQ} loading={search.loading && searching} />
         </div>
         {searching ? (
           <CourseSearchResults
@@ -154,11 +156,22 @@ export function MyCoursesClient({
             onPageChange={setPage}
           />
         ) : loading ? (
-          <p className="text-slate-500">Đang tải...</p>
+          <CategoryGridSkeleton />
         ) : groups.length === 0 ? (
-          <p className="text-slate-500">
-            Bạn chưa có khóa học nào. Vào thư viện để yêu cầu mở khóa.
-          </p>
+          <EmptyState
+            icon={BookOpen}
+            title="Chưa có khóa học"
+            description="Vào thư viện để yêu cầu mở khóa học."
+            action={
+              <button
+                type="button"
+                onClick={() => router.push("/user/library")}
+                className="text-sm font-medium text-indigo-600 hover:underline"
+              >
+                Khám phá thư viện
+              </button>
+            }
+          />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {groups.map((cat) => (
@@ -191,7 +204,7 @@ export function MyCoursesClient({
         {stripOrderPrefix(categoryName)}
       </h1>
       <div className="mb-4">
-        <CourseSearchBox value={q} onChange={setQ} className="max-w-md" />
+        <CourseSearchBox value={q} onChange={setQ} className="max-w-md" loading={search.loading && searching} />
       </div>
       {searching ? (
         <CourseSearchResults
@@ -203,9 +216,13 @@ export function MyCoursesClient({
           onPageChange={setPage}
         />
       ) : loading ? (
-        <p className="text-slate-500">Đang tải...</p>
+        <CourseListSkeleton count={5} />
       ) : categoryCourses.length === 0 ? (
-        <p className="text-slate-500">Không có khóa học trong danh mục này.</p>
+        <EmptyState
+          icon={BookOpen}
+          title="Không có khóa học"
+          description="Danh mục này chưa có khóa học được cấp."
+        />
       ) : (
         <div className="space-y-3">
           {categoryCourses.map((c) => (

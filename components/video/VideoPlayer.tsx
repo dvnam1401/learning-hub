@@ -17,6 +17,9 @@ import { useVideoShortcuts } from "@/components/video/useVideoShortcuts";
 const SPEEDS = [0.5, 1, 1.25, 1.5, 2, 2.5];
 const SEEK_STEP = 10;
 
+const ctrlBtn =
+  "rounded p-1.5 text-slate-300 transition-colors hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900";
+
 type QualityOption = { itag: string; height: number; label: string };
 
 type Manifest =
@@ -302,9 +305,12 @@ export function VideoPlayer({
       )}
       <div className="bg-slate-900 px-4 pb-3 pt-2">
         <div className="group relative mb-3">
-          <div className="h-1.5 rounded-full bg-slate-700 transition-all group-hover:h-2">
+          <div
+            className="h-1.5 rounded-full bg-slate-700 transition-all group-hover:h-2"
+            aria-hidden
+          >
             <div
-              className="h-full rounded-full bg-indigo-500"
+              className="h-full rounded-full bg-indigo-500 transition-[width] duration-100"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -315,32 +321,71 @@ export function VideoPlayer({
             step={0.1}
             value={currentTime}
             disabled={!duration}
+            onMouseDown={() => setSeeking(true)}
+            onMouseUp={() => setSeeking(false)}
+            onTouchStart={() => setSeeking(true)}
+            onTouchEnd={() => setSeeking(false)}
             onChange={handleSeek}
             className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
             aria-label="Tiến độ video"
+            aria-valuemin={0}
+            aria-valuemax={duration || 0}
+            aria-valuenow={currentTime}
+            aria-valuetext={`${formatTime(currentTime)} / ${duration ? formatTime(duration) : "--:--"}`}
           />
         </div>
-        <div className="flex flex-wrap items-center gap-2 text-white">
-          <button type="button" onClick={togglePlay} className="p-1" title="Phát/Dừng (Space)">
+        <div
+          role="group"
+          aria-label="Điều khiển video"
+          className="flex flex-wrap items-center gap-1 text-white"
+        >
+          <button
+            type="button"
+            onClick={togglePlay}
+            className={ctrlBtn}
+            aria-label={playing ? "Tạm dừng" : "Phát"}
+            aria-pressed={playing}
+            aria-keyshortcuts="Space"
+          >
             {playing ? <Pause size={20} /> : <Play size={20} />}
           </button>
-          <button type="button" onClick={() => seekBy(-SEEK_STEP)} className="p-1" title="Lùi 10s (←)">
+          <button
+            type="button"
+            onClick={() => seekBy(-SEEK_STEP)}
+            className={ctrlBtn}
+            aria-label="Lùi 10 giây"
+            aria-keyshortcuts="ArrowLeft"
+          >
             <Rewind size={18} />
           </button>
-          <button type="button" onClick={() => seekBy(SEEK_STEP)} className="p-1" title="Tua 10s (→)">
+          <button
+            type="button"
+            onClick={() => seekBy(SEEK_STEP)}
+            className={ctrlBtn}
+            aria-label="Tua 10 giây"
+            aria-keyshortcuts="ArrowRight"
+          >
             <FastForward size={18} />
           </button>
-          <button type="button" onClick={onEnded} className="p-1" title="Bài tiếp">
+          <button
+            type="button"
+            onClick={onEnded}
+            className={ctrlBtn}
+            aria-label="Bài tiếp theo"
+            disabled={!onEnded}
+          >
             <SkipForward size={20} />
           </button>
-          <span className="text-xs text-slate-300">
+          <span className="px-1 text-xs text-slate-300" aria-live="polite">
             {formatTime(currentTime)} / {duration ? formatTime(duration) : "--:--"}
           </span>
           <button
             type="button"
             onClick={() => setMuted((m) => !m)}
-            className="ml-auto p-1 text-slate-400 hover:text-white"
-            title="Tắt/bật âm (M)"
+            className={`${ctrlBtn} ml-auto`}
+            aria-label={muted ? "Bật âm thanh" : "Tắt âm thanh"}
+            aria-pressed={muted}
+            aria-keyshortcuts="m"
           >
             {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
           </button>
@@ -348,14 +393,22 @@ export function VideoPlayer({
             <button
               type="button"
               onClick={() => setShowSettings((s) => !s)}
-              className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-slate-300 hover:text-white"
-              title="Cài đặt phát"
+              className={`${ctrlBtn} flex items-center gap-1 px-2 text-xs`}
+              aria-label="Cài đặt phát"
+              aria-expanded={showSettings}
+              aria-haspopup="true"
+              aria-controls="video-settings-panel"
             >
               <Settings size={14} />
-              {settingsLabel}
+              <span>{settingsLabel}</span>
             </button>
             {showSettings && manifest && (
-              <div className="absolute bottom-full right-0 z-10 mb-1 w-44 rounded-lg border border-slate-700 bg-slate-800 p-3 shadow-lg">
+              <div
+                id="video-settings-panel"
+                role="dialog"
+                aria-label="Cài đặt phát"
+                className="absolute bottom-full right-0 z-10 mb-1 w-44 animate-scale-in rounded-lg border border-slate-700 bg-slate-800 p-3 shadow-lg"
+              >
                 {manifest.qualities.length > 0 && (
                   <label className="mb-3 block">
                     <span className="mb-1 block text-[10px] uppercase tracking-wide text-slate-500">
@@ -395,8 +448,9 @@ export function VideoPlayer({
           </div>
           <button
             type="button"
-            className="p-1"
-            title="Toàn màn hình (F)"
+            className={ctrlBtn}
+            aria-label="Toàn màn hình"
+            aria-keyshortcuts="f"
             onClick={() => videoRef.current?.requestFullscreen()}
           >
             <Maximize size={18} />

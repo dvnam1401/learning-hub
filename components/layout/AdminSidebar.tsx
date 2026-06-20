@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SidebarLogout } from "@/components/auth/SidebarLogout";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import {
   Bell,
   BookOpen,
@@ -42,7 +43,7 @@ export function AdminSidebar() {
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                 active
                   ? "bg-admin-accent text-white"
                   : "hover:bg-slate-800 hover:text-white"
@@ -55,6 +56,10 @@ export function AdminSidebar() {
         })}
       </nav>
       <div className="space-y-1 border-t border-slate-700 p-3">
+        <div className="flex items-center justify-between px-3 py-1">
+          <span className="text-xs text-slate-500">Giao diện</span>
+          <ThemeToggle className="text-slate-300 hover:bg-slate-800" />
+        </div>
         <Link
           href="/admin/settings/sync"
           className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-800 hover:text-white"

@@ -15,6 +15,7 @@ export type AdminCatalogNode = {
   videoCount?: number;
   courseId?: string;
   hidden?: boolean;
+  isGift?: boolean;
   children: AdminCatalogNode[];
 };
 
@@ -173,6 +174,17 @@ export function groupCoursesBySubCategory<T extends { path: string; name: string
     });
 }
 
+function isGiftCategoryFolderName(name: string): boolean {
+  const key = stripOrderPrefix(name).toLowerCase();
+  return key.startsWith("quà tặng");
+}
+
+function courseIsGift(path: string): boolean {
+  const parts = path.split("/").filter(Boolean);
+  if (parts.length <= 1) return false;
+  return parts.slice(0, -1).some((segment) => isGiftCategoryFolderName(segment));
+}
+
 export function buildAdminCatalogTree(
   courses: CatalogCourse[],
   hiddenIds: Set<string>
@@ -204,12 +216,11 @@ export function buildAdminCatalogTree(
     cat.videoCount! += c.videoCount;
 
     let parent: AdminCatalogNode = cat;
-    if (parts.length >= 3) {
-      const subName = parts[2];
-      const sub = findFolderChild(cat, subName, "subcategory");
-      sub.courseCount! += 1;
-      sub.videoCount! += c.videoCount;
-      parent = sub;
+    for (let i = 2; i < parts.length - 1; i++) {
+      const folder = findFolderChild(parent, parts[i], "subcategory");
+      folder.courseCount! += 1;
+      folder.videoCount! += c.videoCount;
+      parent = folder;
     }
 
     const exists = parent.children.some(
@@ -223,6 +234,7 @@ export function buildAdminCatalogTree(
         courseId: c.id,
         videoCount: c.videoCount,
         hidden: hiddenIds.has(c.id),
+        isGift: courseIsGift(c.path),
         children: [],
       });
     }

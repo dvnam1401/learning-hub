@@ -9,6 +9,19 @@ function sqlParams(params: unknown[]): SQLInputValue[] {
 }
 
 let sqlite: DatabaseSync | null = null;
+let schemaReady = false;
+
+function runMigrations(db: DatabaseSync): void {
+  const dir = path.join(process.cwd(), "migrations");
+  if (!fs.existsSync(dir)) return;
+  const files = fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith(".sql"))
+    .sort();
+  for (const file of files) {
+    db.exec(fs.readFileSync(path.join(dir, file), "utf8"));
+  }
+}
 
 function getSqlite(): DatabaseSync {
   if (sqlite) return sqlite;
@@ -17,7 +30,26 @@ function getSqlite(): DatabaseSync {
   sqlite = new DatabaseSync(dbPath);
   sqlite.exec("PRAGMA journal_mode = WAL");
   sqlite.exec("PRAGMA foreign_keys = ON");
+  runMigrations(sqlite);
+  schemaReady = true;
   return sqlite;
+}
+
+async function ensureSchema(): Promise<void> {
+  if (schemaReady) return;
+  if (useRemote()) {
+    const migrationPath = path.join(
+      process.cwd(),
+      "migrations",
+      "0002_user_folder_grants.sql"
+    );
+    if (fs.existsSync(migrationPath)) {
+      await queryRemote(fs.readFileSync(migrationPath, "utf8"));
+    }
+    schemaReady = true;
+    return;
+  }
+  getSqlite();
 }
 
 function cloudflareEnv() {
@@ -92,6 +124,7 @@ export async function dbQuery<T extends Row = Row>(
   params: unknown[] = []
 ): Promise<T[]> {
   assertDbBackend();
+  await ensureSchema();
   if (useRemote()) {
     return queryRemote<T>(sql, params);
   }

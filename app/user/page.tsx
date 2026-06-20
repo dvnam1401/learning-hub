@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { headers } from "next/headers";
+import { BookOpen, PlayCircle } from "lucide-react";
 import { getSession } from "@/lib/auth/session";
 import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export default async function UserDashboardPage() {
   const user = await getSession();
@@ -12,7 +15,6 @@ export default async function UserDashboardPage() {
   }> = [];
 
   try {
-    const { headers } = await import("next/headers");
     const h = await headers();
     const host = h.get("host") ?? "localhost:3000";
     const proto = h.get("x-forwarded-proto") ?? "http";
@@ -29,34 +31,46 @@ export default async function UserDashboardPage() {
   }
 
   return (
-    <div>
-      <header className="mb-8 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Continue Learning</h1>
+    <div className="space-y-8">
+      <header>
+        <h1 className="text-2xl font-bold text-foreground">Trang chủ</h1>
+        <p className="mt-1 text-sm text-muted">
+          Xin chào, {user?.displayName ?? user?.username}
+        </p>
       </header>
 
-      <section className="mb-10">
-        <h2 className="mb-4 text-lg font-semibold">Tiếp tục học</h2>
+      <section>
+        <h2 className="mb-4 text-lg font-semibold text-foreground">Tiếp tục học</h2>
         {items.length === 0 ? (
-          <p className="text-slate-500">
-            Chưa có bài học dở.{" "}
-            <Link href="/user/library" className="text-indigo-600">
-              Khám phá thư viện
-            </Link>
-          </p>
+          <EmptyState
+            icon={PlayCircle}
+            title="Chưa có bài học dở"
+            description="Khám phá thư viện và bắt đầu học ngay hôm nay."
+            action={
+              <Link href="/user/library">
+                <Button>Khám phá thư viện</Button>
+              </Link>
+            }
+          />
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {items.map((item) => (
               <div
                 key={item.video_id}
-                className="rounded-xl bg-white p-4 shadow-sm"
+                className="group surface-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
               >
-                <h3 className="font-semibold">{item.courseName}</h3>
-                <p className="mt-1 text-sm text-slate-500">Đang học dở</p>
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <PlayCircle size={20} />
+                </div>
+                <h3 className="font-semibold text-foreground line-clamp-2">
+                  {item.courseName}
+                </h3>
+                <p className="mt-1 text-sm text-muted">Đang học dở</p>
                 <Link
                   href={`/user/courses/${item.course_id}/watch/${item.video_id}`}
                   className="mt-4 inline-block"
                 >
-                  <Button variant="secondary">Resume</Button>
+                  <Button variant="primary">Tiếp tục học</Button>
                 </Link>
               </div>
             ))}
@@ -65,16 +79,25 @@ export default async function UserDashboardPage() {
       </section>
 
       <section>
-        <h2 className="mb-4 text-lg font-semibold">Recent Progress</h2>
-        <div className="rounded-xl bg-white p-6 shadow-sm">
-          <p className="text-slate-600">
-            Xin chào, {user?.displayName ?? user?.username}! Theo dõi tiến độ
-            tại{" "}
-            <Link href="/user/my-courses" className="text-indigo-600">
-              Khóa học của tôi
-            </Link>
-            .
-          </p>
+        <h2 className="mb-4 text-lg font-semibold text-foreground">Khám phá thêm</h2>
+        <div className="surface-card p-6">
+          <div className="flex items-start gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500">
+              <BookOpen size={20} />
+            </div>
+            <div>
+              <p className="text-foreground/80">
+                Theo dõi tiến độ học tập tại{" "}
+                <Link href="/user/my-courses" className="font-medium text-primary hover:underline">
+                  Khóa học của tôi
+                </Link>
+                .
+              </p>
+              <Link href="/user/library" className="mt-3 inline-block">
+                <Button variant="secondary">Xem thư viện</Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </div>

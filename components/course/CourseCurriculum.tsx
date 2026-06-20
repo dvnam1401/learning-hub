@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ChevronDown, ChevronRight, PlayCircle } from "lucide-react";
+import { ChevronDown, PlayCircle } from "lucide-react";
 import type { CourseTreeNode } from "@/lib/types";
 import { firstVideoInNode } from "@/lib/catalog/tree-utils";
+import { Collapsible } from "@/components/ui/Collapsible";
 
 function countVideos(node: CourseTreeNode): number {
   if (node.type === "video") return 1;
@@ -22,15 +23,16 @@ function Section({
 }) {
   const [open, setOpen] = useState(depth === 0);
   const videos = countVideos(node);
+  const panelId = `section-${node.id}`;
 
   if (node.type === "video" && node.fileId) {
     return (
       <Link
         href={`/user/courses/${courseId}/watch/${node.fileId}`}
-        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted transition-colors hover:bg-accent hover:text-foreground"
         style={{ paddingLeft: 12 + depth * 16 }}
       >
-        <PlayCircle size={14} className="shrink-0 text-indigo-500" />
+        <PlayCircle size={14} className="shrink-0 text-primary" />
         <span className="line-clamp-2">{node.name}</span>
       </Link>
     );
@@ -45,61 +47,67 @@ function Section({
     return (
       <div>
         <div
-          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-accent"
           style={{ paddingLeft: 12 + depth * 16 }}
         >
           <button
             type="button"
+            aria-expanded={open}
+            aria-controls={panelId}
             onClick={() => setOpen(!open)}
-            className="shrink-0 text-slate-500"
+            className={`shrink-0 text-muted transition-transform duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${open ? "rotate-0" : "-rotate-90"}`}
           >
-            {open ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            <ChevronDown size={16} />
           </button>
           {startVideo ? (
             <Link
               href={`/user/courses/${courseId}/watch/${startVideo.id}`}
-              className="flex flex-1 items-center gap-2 min-w-0"
+              className="flex min-w-0 flex-1 items-center gap-2"
             >
               <span className="flex-1">{node.name}</span>
-              <span className="text-xs text-slate-400 shrink-0">{videos} bài</span>
+              <span className="shrink-0 text-xs text-muted">{videos} bài</span>
             </Link>
           ) : (
             <>
               <span className="flex-1">{node.name}</span>
-              <span className="text-xs text-slate-400">{videos} bài</span>
+              <span className="text-xs text-muted">{videos} bài</span>
             </>
           )}
         </div>
-        {open && (
-          <div className="space-y-0.5">
+        <Collapsible open={open}>
+          <div id={panelId} className="space-y-0.5">
             {node.children.map((child) => (
               <Section key={child.id} node={child} courseId={courseId} depth={depth + 1} />
             ))}
           </div>
-        )}
+        </Collapsible>
       </div>
     );
   }
 
   return (
-    <div className={depth === 0 ? "border-b border-slate-100 pb-3 last:border-0" : ""}>
+    <div className={depth === 0 ? "border-b border-border pb-3 last:border-0" : ""}>
       <button
         type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center gap-2 px-3 py-2 text-left font-semibold text-slate-900 hover:bg-slate-50"
+        className="flex w-full items-center gap-2 px-3 py-2 text-left font-semibold text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         style={{ paddingLeft: 12 + depth * 16 }}
       >
-        {open ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+        <span className={`shrink-0 transition-transform duration-300 ${open ? "rotate-0" : "-rotate-90"}`}>
+          <ChevronDown size={18} />
+        </span>
         <span className="flex-1">{node.name}</span>
-        <span className="text-xs font-normal text-slate-400">{videos} bài</span>
+        <span className="text-xs font-normal text-muted">{videos} bài</span>
       </button>
-      {open && (
-        <div className="mt-1 space-y-0.5">
+      <Collapsible open={open}>
+        <div id={panelId} className="mt-1 space-y-0.5">
           {node.children.map((child) => (
             <Section key={child.id} node={child} courseId={courseId} depth={depth + 1} />
           ))}
         </div>
-      )}
+      </Collapsible>
     </div>
   );
 }
@@ -112,8 +120,8 @@ export function CourseCurriculum({
   courseId: string;
 }) {
   return (
-    <div className="rounded-xl bg-white shadow-sm">
-      <div className="border-b border-slate-100 px-4 py-3 font-semibold text-slate-900">
+    <div className="surface-card">
+      <div className="border-b border-border px-4 py-3 font-semibold text-foreground">
         Nội dung khóa học
       </div>
       <div className="max-h-[60vh] space-y-1 overflow-y-auto p-2">

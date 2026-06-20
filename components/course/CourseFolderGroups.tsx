@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Folder, FolderOpen } from "lucide-react";
 import { CourseListItem } from "@/components/course/CourseListItem";
+import { Collapsible } from "@/components/ui/Collapsible";
 import { stripOrderPrefix } from "@/lib/catalog/categories";
 
 export type LibraryCourse = {
@@ -36,27 +37,35 @@ function FolderSection({
   onRequestAccess: (id: string) => void;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const panelId = `folder-${name.replace(/\s+/g, "-")}`;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div className="surface-card overflow-hidden">
       <button
         type="button"
+        id={`${panelId}-trigger`}
+        aria-expanded={open}
+        aria-controls={panelId}
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center gap-2 border-b border-slate-100 bg-slate-50 px-4 py-3 text-left hover:bg-slate-100"
+        className="flex w-full items-center gap-2 border-b border-border bg-accent/50 px-4 py-3 text-left transition-colors hover:bg-accent"
       >
-        {open ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+        <span
+          className={`shrink-0 transition-transform duration-300 ${open ? "rotate-0" : "-rotate-90"}`}
+        >
+          <ChevronDown size={16} />
+        </span>
         {open ? (
           <FolderOpen size={16} className="shrink-0 text-amber-600" />
         ) : (
           <Folder size={16} className="shrink-0 text-amber-600" />
         )}
-        <span className="flex-1 font-medium text-slate-800">
+        <span className="flex-1 font-medium text-foreground">
           {stripOrderPrefix(name)}
         </span>
-        <span className="text-xs text-slate-500">{courses.length} khóa</span>
+        <span className="text-xs text-muted">{courses.length} khóa</span>
       </button>
-      {open && (
-        <div className="space-y-3 p-4">
+      <Collapsible open={open}>
+        <div id={panelId} role="region" aria-labelledby={`${panelId}-trigger`} className="space-y-3 p-4">
           {courses.map((course) => (
             <CourseListItem
               key={course.id}
@@ -69,7 +78,7 @@ function FolderSection({
             />
           ))}
         </div>
-      )}
+      </Collapsible>
     </div>
   );
 }

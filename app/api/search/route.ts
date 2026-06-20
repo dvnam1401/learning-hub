@@ -2,10 +2,10 @@ import { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { findCourseInIndex } from "@/lib/catalog/reader";
-import { isGiftCourse } from "@/lib/catalog/gift";
 import { isHiddenUserCourse } from "@/lib/catalog/hidden-categories";
 import { searchCatalog } from "@/lib/catalog/search";
-import { getUserCourseIds } from "@/lib/db/repositories";
+import { resolveCourseUnlocked } from "@/lib/catalog/folder-access";
+import { getUserCourseIds, getUserFolderGrantIds } from "@/lib/db/repositories";
 
 export async function GET(request: NextRequest) {
   const user = await getSession();
@@ -20,14 +20,17 @@ export async function GET(request: NextRequest) {
     });
   }
   const granted = new Set(await getUserCourseIds(user.id));
+  const folderGrants = new Set(await getUserFolderGrantIds(user.id));
 
   return jsonOk({
     results: results.map((r) => {
       const course = findCourseInIndex(r.courseId);
-      const gift = course ? isGiftCourse(course) : false;
+      const unlocked = course
+        ? resolveCourseUnlocked(course, user.role, granted, folderGrants)
+        : user.role === "ADMIN";
       return {
         ...r,
-        unlocked: user.role === "ADMIN" || granted.has(r.courseId) || gift,
+        unlocked,
       };
     }),
   });

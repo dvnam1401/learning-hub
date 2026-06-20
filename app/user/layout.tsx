@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { UserSidebar } from "@/components/layout/UserSidebar";
+import { MobileShell } from "@/components/layout/MobileShell";
 import { getUnreadCount } from "@/lib/db/repositories";
 
 export default async function UserLayout({
@@ -15,12 +16,16 @@ export default async function UserLayout({
   const unread = await getUnreadCount(user.id);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
-      <UserSidebar
-        displayName={user.displayName ?? user.username}
-        unread={unread}
-      />
-      <main className="min-h-0 flex-1 overflow-y-auto p-6">{children}</main>
-    </div>
+    <MobileShell
+      title="Learning Hub"
+      sidebar={
+        <UserSidebar
+          displayName={user.displayName ?? user.username}
+          unread={unread}
+        />
+      }
+    >
+      {children}
+    </MobileShell>
   );
 }
