@@ -15,6 +15,7 @@
     "cache:videos": "node scripts/cache-drive-videos.mjs",
     "probe:drive": "node scripts/probe-drive-file.mjs",
     "check:google": "node scripts/check-google-env.mjs",
+    "sync:vercel-env": "node scripts/sync-vercel-env.mjs",
     "auth:google": "node scripts/auth-google.mjs",
     "db:migrate": "wrangler d1 migrations apply learning-hub-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply learning-hub-db --remote",
