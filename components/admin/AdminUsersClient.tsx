@@ -160,7 +160,7 @@ export function AdminUsersClient() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Quản lý User</h1>
+        <h1 className="text-2xl font-bold text-foreground">Quản lý User</h1>
         <Button onClick={openCreate}>Tạo User</Button>
       </div>
 
@@ -182,9 +182,9 @@ export function AdminUsersClient() {
         onDelete={deleteUser}
       />
 
-      <div className="overflow-x-auto rounded-xl bg-white shadow-sm">
-        <table className="w-full min-w-[720px] text-left text-sm">
-          <thead className="border-b bg-slate-50">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+        <table className="w-full min-w-[720px] text-left text-sm text-foreground">
+          <thead className="border-b border-border bg-accent text-muted">
             <tr>
               <th className="p-3">Username</th>
               <th className="p-3">Tên hiển thị</th>
@@ -197,15 +197,15 @@ export function AdminUsersClient() {
           <tbody>
             {users.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-8 text-center text-slate-500">
+                <td colSpan={6} className="p-8 text-center text-muted">
                   Chưa có người dùng nào
                 </td>
               </tr>
             )}
             {users.map((u) => (
-              <tr key={u.id} className="border-b">
+              <tr key={u.id} className="border-b border-border transition-colors hover:bg-accent">
                 <td className="p-3 font-medium">{u.username}</td>
-                <td className="p-3 text-slate-600">
+                <td className="p-3 text-muted">
                   {u.display_name || "—"}
                 </td>
                 <td className="p-3">{u.role}</td>

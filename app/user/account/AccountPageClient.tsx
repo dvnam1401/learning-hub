@@ -23,21 +23,21 @@ export function AccountPageClient() {
     router.push("/login");
   }
 
-  if (!user) return <p>Đang tải...</p>;
+  if (!user) return <p className="text-muted">Đang tải...</p>;
 
   return (
     <div className="max-w-lg">
-      <h1 className="mb-6 text-2xl font-bold">Tài khoản</h1>
-      <div className="rounded-xl bg-white p-6 shadow-sm space-y-3">
-        <p>
-          <span className="text-slate-500">Username:</span> {user.username}
+      <h1 className="mb-6 text-2xl font-bold text-foreground">Tài khoản</h1>
+      <div className="surface-card space-y-3 p-6">
+        <p className="text-foreground">
+          <span className="text-muted">Username:</span> {user.username}
         </p>
-        <p>
-          <span className="text-slate-500">Tên hiển thị:</span>{" "}
+        <p className="text-foreground">
+          <span className="text-muted">Tên hiển thị:</span>{" "}
           {user.displayName ?? "—"}
         </p>
-        <p>
-          <span className="text-slate-500">Vai trò:</span> {user.role}
+        <p className="text-foreground">
+          <span className="text-muted">Vai trò:</span> {user.role}
         </p>
         <Button variant="danger" onClick={logout}>
           Đăng xuất

@@ -157,8 +157,8 @@ export function LibraryClient({ categoryParam }: { categoryParam: string | null 
           onClick={() => setTab(t)}
           className={`min-h-[44px] rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             tab === t
-              ? "bg-indigo-50 text-indigo-600"
-              : "text-slate-600 hover:bg-slate-100"
+              ? "bg-primary/10 text-primary"
+              : "text-muted hover:bg-accent hover:text-foreground"
           }`}
         >
           {t === "all" ? "Tất cả" : t === "unlocked" ? "Đã mở" : "Chưa mở"}
@@ -171,8 +171,8 @@ export function LibraryClient({ categoryParam }: { categoryParam: string | null 
     return (
       <div>
         {toast && <Toast message={toast} onClose={() => setToast(null)} />}
-        <h1 className="mb-2 text-2xl font-bold">Thư viện khóa học</h1>
-        <p className="mb-4 text-sm text-slate-500">
+        <h1 className="mb-2 text-2xl font-bold text-foreground">Thư viện khóa học</h1>
+        <p className="mb-4 text-sm text-muted">
           Chọn danh mục hoặc tìm khóa học trên toàn thư viện
         </p>
         <div className="mb-4 flex flex-wrap items-center gap-4">
@@ -220,12 +220,12 @@ export function LibraryClient({ categoryParam }: { categoryParam: string | null 
       <button
         type="button"
         onClick={() => router.push("/user/library")}
-        className="mb-4 flex items-center gap-1 text-sm text-indigo-600 hover:underline"
+        className="mb-4 flex items-center gap-1 text-sm text-primary hover:underline"
       >
         <ArrowLeft size={16} />
         Tất cả danh mục
       </button>
-      <h1 className="mb-6 text-2xl font-bold">
+      <h1 className="mb-6 text-2xl font-bold text-foreground">
         {stripOrderPrefix(categoryName || categoryKey)}
       </h1>
       <div className="mb-4 flex flex-wrap items-center gap-4">
@@ -254,7 +254,7 @@ export function LibraryClient({ categoryParam }: { categoryParam: string | null 
         />
       ) : (
         <>
-          <p className="mb-4 text-sm text-slate-500">{courses.length} khóa học</p>
+          <p className="mb-4 text-sm text-muted">{courses.length} khóa học</p>
           <CourseFolderGroups
             groups={courseGroups}
             isAccessPending={isAccessPending}

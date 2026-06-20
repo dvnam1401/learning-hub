@@ -26,7 +26,9 @@ export function CourseListItem({
     <div className="surface-card flex flex-col gap-3 p-4 transition-all duration-200 hover:border-primary/30 hover:shadow-md sm:flex-row sm:items-center sm:gap-4">
       <div
         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg ${
-          unlocked ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400"
+          unlocked
+            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+            : "bg-accent text-muted"
         }`}
       >
         {unlocked ? <LockOpen size={20} /> : <Lock size={20} />}
@@ -45,7 +47,7 @@ export function CourseListItem({
             <Button variant="primary">Vào học</Button>
           </Link>
         ) : bundledGift ? (
-          <span className="rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-500">
+          <span className="rounded-lg border border-border px-4 py-2 text-sm text-muted">
             Tặng kèm cùng nhóm
           </span>
         ) : accessPending ? (

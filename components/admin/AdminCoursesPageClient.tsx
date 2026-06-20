@@ -114,7 +114,7 @@ export function AdminCoursesPageClient() {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">Quản lý khóa học</h1>
+        <h1 className="text-2xl font-bold text-foreground">Quản lý khóa học</h1>
         <div className="flex gap-2">
           <Button
             variant={view === "tree" ? "primary" : "secondary"}
@@ -170,7 +170,7 @@ export function AdminCoursesPageClient() {
             </Select>
           </div>
           {loading ? (
-            <p className="text-slate-500">Đang tải...</p>
+            <p className="text-muted">Đang tải...</p>
           ) : (
             <>
               <AdminCoursesTable
@@ -186,7 +186,7 @@ export function AdminCoursesPageClient() {
                 >
                   Trước
                 </Button>
-                <span className="text-sm text-slate-500">
+                <span className="text-sm text-muted">
                   {page} / {totalPages} · {total} khóa
                 </span>
                 <Button
@@ -204,8 +204,8 @@ export function AdminCoursesPageClient() {
 
       {editId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-            <h2 className="mb-4 font-semibold">Sửa khóa học</h2>
+          <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 text-card-foreground shadow-xl">
+            <h2 className="mb-4 font-semibold text-foreground">Sửa khóa học</h2>
             <div className="space-y-3">
               <Input
                 placeholder="Tên hiển thị"

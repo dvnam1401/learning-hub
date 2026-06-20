@@ -22,9 +22,9 @@ export function AdminCoursesTable({
   onHide: (id: string) => void;
 }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-      <table className="w-full min-w-[720px] text-sm">
-        <thead className="border-b bg-slate-50 text-left text-slate-600">
+    <div className="overflow-x-auto rounded-xl border border-border bg-card">
+      <table className="w-full min-w-[720px] text-sm text-foreground">
+        <thead className="border-b border-border bg-accent text-left text-muted">
           <tr>
             <th className="px-4 py-3 font-medium">Khóa học</th>
             <th className="px-4 py-3 font-medium">Danh mục</th>
@@ -35,17 +35,17 @@ export function AdminCoursesTable({
         </thead>
         <tbody>
           {courses.map((c) => (
-            <tr key={c.id} className="border-b border-slate-100 last:border-0">
+            <tr key={c.id} className="border-b border-border last:border-0 transition-colors hover:bg-accent">
               <td className="px-4 py-3">
-                <p className="font-medium text-slate-900 line-clamp-2">{c.name}</p>
-                <p className="mt-0.5 text-xs text-slate-400 line-clamp-1">
+                <p className="font-medium text-foreground line-clamp-2">{c.name}</p>
+                <p className="mt-0.5 text-xs text-muted line-clamp-1">
                   {getSubCategoryName(c.path) ?? getTopCategoryName(c.path)}
                 </p>
               </td>
-              <td className="px-4 py-3 text-slate-600">
+              <td className="px-4 py-3 text-muted">
                 {getTopCategoryName(c.path)}
               </td>
-              <td className="px-4 py-3 text-slate-600">{c.videoCount}</td>
+              <td className="px-4 py-3 text-muted">{c.videoCount}</td>
               <td className="px-4 py-3">
                 {c.hidden ? (
                   <Badge tone="gray">Ẩn</Badge>

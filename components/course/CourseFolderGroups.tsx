@@ -47,7 +47,7 @@ function FolderSection({
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center gap-2 border-b border-border bg-accent/50 px-4 py-3 text-left transition-colors hover:bg-accent"
+        className="flex w-full items-center gap-2 border-b border-border bg-accent/50 px-4 py-3 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <span
           className={`shrink-0 transition-transform duration-300 ${open ? "rotate-0" : "-rotate-90"}`}
@@ -121,7 +121,7 @@ export function CourseFolderGroups({
           key={group.key}
           name={group.name}
           courses={group.courses}
-          defaultOpen
+          defaultOpen={false}
           isAccessPending={isAccessPending}
           requestingId={requestingId}
           onRequestAccess={onRequestAccess}

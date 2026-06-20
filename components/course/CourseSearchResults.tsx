@@ -60,20 +60,20 @@ export function CourseSearchResults({
               key={c.id}
               type="button"
               onClick={() => onSelectCourse?.(c.id)}
-              className={`flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all duration-200 hover:border-indigo-200 hover:shadow-md ${
+              className={`surface-card flex w-full items-center gap-3 p-4 text-left transition-all duration-200 hover:border-primary/30 hover:shadow-md ${
                 c.hidden ? "opacity-60" : ""
               }`}
             >
               <div className="min-w-0 flex-1">
-                <p className="font-semibold text-slate-900 line-clamp-2">
+                <p className="font-semibold text-foreground line-clamp-2">
                   {c.name}
                   {c.hidden && (
-                    <span className="ml-2 text-xs font-normal text-slate-400">
+                    <span className="ml-2 text-xs font-normal text-muted">
                       (ẩn)
                     </span>
                   )}
                 </p>
-                <p className="mt-0.5 text-xs text-slate-500 line-clamp-1">
+                <p className="mt-0.5 text-xs text-muted line-clamp-1">
                   {shortenCoursePath(c.path)} · {c.videoCount} video
                 </p>
               </div>
@@ -113,7 +113,7 @@ export function CourseSearchResults({
                   : undefined
               }
             />
-            <p className="mt-1 pl-0 text-xs text-slate-400 line-clamp-1 sm:pl-16">
+            <p className="mt-1 pl-0 text-xs text-muted line-clamp-1 sm:pl-16">
               {shortenCoursePath(c.path)}
             </p>
           </div>
@@ -151,7 +151,7 @@ function Pagination({
       >
         Trước
       </Button>
-      <span className="text-sm text-slate-500">
+      <span className="text-sm text-muted">
         {page} / {totalPages} · {total} khóa
       </span>
       <Button

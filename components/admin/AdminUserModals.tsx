@@ -56,7 +56,7 @@ function UserFields({
         onChange={(e) => onFormChange({ ...form, displayName: e.target.value })}
       />
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-slate-600">
+        <label className="mb-1.5 block text-sm font-medium text-muted">
           Vai trò
         </label>
         <Select
@@ -114,7 +114,7 @@ export function AdminUserModals({
       <Modal open={modal === "create"} onClose={onClose} title="Tạo User mới">
         <form onSubmit={onCreate} className="space-y-4">
           <UserFields form={form} modal={modal} onFormChange={onFormChange} />
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
           <FormActions loading={loading} onClose={onClose} submitLabel="Lưu" />
         </form>
       </Modal>
@@ -126,7 +126,7 @@ export function AdminUserModals({
       >
         <form onSubmit={onEdit} className="space-y-4">
           <UserFields form={form} modal={modal} onFormChange={onFormChange} />
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
           <FormActions loading={loading} onClose={onClose} submitLabel="Cập nhật" />
         </form>
       </Modal>
@@ -151,20 +151,20 @@ export function AdminUserModals({
             onChange={(e) => onConfirmPasswordChange(e.target.value)}
             required
           />
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
           <FormActions loading={loading} onClose={onClose} submitLabel="Reset" />
         </form>
       </Modal>
 
       <Modal open={modal === "delete"} onClose={onClose} title="Xóa tài khoản">
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-muted">
           Bạn có chắc muốn xóa tài khoản{" "}
-          <span className="font-semibold text-slate-900">
+          <span className="font-semibold text-foreground">
             {selected?.username}
           </span>
           ? Hành động này không thể hoàn tác.
         </p>
-        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-3 text-sm text-red-600 dark:text-red-400">{error}</p>}
         <div className="mt-5 flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={onClose}>
             Hủy

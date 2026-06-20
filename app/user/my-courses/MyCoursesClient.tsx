@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, BookOpen } from "lucide-react";
 import { CategoryCard } from "@/components/course/CategoryCard";
-import { CourseListItem } from "@/components/course/CourseListItem";
+import { CourseFolderGroups } from "@/components/course/CourseFolderGroups";
 import { CourseSearchBox } from "@/components/course/CourseSearchBox";
 import { CourseSearchResults } from "@/components/course/CourseSearchResults";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -17,6 +17,7 @@ import {
   compareFolderNames,
   decodeCategoryParam,
   getOrderPrefix,
+  groupCoursesBySubCategory,
   stripOrderPrefix,
   topCategoryKeyFromPath,
 } from "@/lib/catalog/categories";
@@ -129,6 +130,10 @@ export function MyCoursesClient({
   }, [q, categoryKey]);
 
   const groups = useMemo(() => groupByCategory(allCourses), [allCourses]);
+  const courseGroups = useMemo(
+    () => groupCoursesBySubCategory(categoryCourses),
+    [categoryCourses]
+  );
   const activeGroup = groups.find((g) => g.id === categoryKey);
   const categoryName =
     activeGroup?.name ??
@@ -139,8 +144,8 @@ export function MyCoursesClient({
   if (!categoryKey) {
     return (
       <div>
-        <h1 className="mb-2 text-2xl font-bold">Khóa học của tôi</h1>
-        <p className="mb-4 text-sm text-slate-500">
+        <h1 className="mb-2 text-2xl font-bold text-foreground">Khóa học của tôi</h1>
+        <p className="mb-4 text-sm text-muted">
           Chọn danh mục hoặc tìm trong khóa đã được cấp
         </p>
         <div className="mb-6">
@@ -166,7 +171,7 @@ export function MyCoursesClient({
               <button
                 type="button"
                 onClick={() => router.push("/user/library")}
-                className="text-sm font-medium text-indigo-600 hover:underline"
+                className="text-sm font-medium text-primary hover:underline"
               >
                 Khám phá thư viện
               </button>
@@ -195,12 +200,12 @@ export function MyCoursesClient({
       <button
         type="button"
         onClick={() => router.push("/user/my-courses")}
-        className="mb-4 flex items-center gap-1 text-sm text-indigo-600 hover:underline"
+        className="mb-4 flex items-center gap-1 text-sm text-primary hover:underline"
       >
         <ArrowLeft size={16} />
         Tất cả danh mục
       </button>
-      <h1 className="mb-6 text-2xl font-bold">
+      <h1 className="mb-6 text-2xl font-bold text-foreground">
         {stripOrderPrefix(categoryName)}
       </h1>
       <div className="mb-4">
@@ -224,17 +229,15 @@ export function MyCoursesClient({
           description="Danh mục này chưa có khóa học được cấp."
         />
       ) : (
-        <div className="space-y-3">
-          {categoryCourses.map((c) => (
-            <CourseListItem
-              key={c.id}
-              id={c.id}
-              name={c.name}
-              videoCount={c.videoCount}
-              unlocked
-            />
-          ))}
-        </div>
+        <CourseFolderGroups
+          groups={courseGroups.map((g) => ({
+            ...g,
+            courses: g.courses.map((c) => ({ ...c, unlocked: true as const })),
+          }))}
+          isAccessPending={() => false}
+          requestingId={null}
+          onRequestAccess={() => {}}
+        />
       )}
     </div>
   );

@@ -20,7 +20,7 @@ export function CourseSearchBox({
   return (
     <div className={`relative min-w-[240px] flex-1 ${className}`}>
       <Search
-        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
         size={18}
       />
       <Input

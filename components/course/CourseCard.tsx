@@ -24,8 +24,8 @@ export function CourseCard({
   onRequestAccess,
 }: CourseCardProps) {
   return (
-    <div className="overflow-hidden rounded-xl bg-white shadow-sm transition hover:shadow-md">
-      <div className="relative aspect-video bg-gradient-to-br from-slate-200 to-slate-300">
+    <div className="surface-card overflow-hidden transition hover:shadow-md">
+      <div className="relative aspect-video bg-gradient-to-br from-accent to-muted/30">
         {thumbnailUrl ? (
           <img src={thumbnailUrl} alt="" className="h-full w-full object-cover" />
         ) : null}
@@ -47,20 +47,20 @@ export function CourseCard({
         </span>
       </div>
       <div className="p-4">
-        <h3 className="font-semibold text-slate-900 line-clamp-2">{name}</h3>
-        <p className="mt-1 flex items-center gap-1 text-xs text-slate-500">
+        <h3 className="font-semibold text-foreground line-clamp-2">{name}</h3>
+        <p className="mt-1 flex items-center gap-1 text-xs text-muted">
           <Clock size={12} />
           {videoCount} video
         </p>
         {unlocked && progress > 0 && (
           <div className="mt-3">
-            <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-1.5 overflow-hidden rounded-full bg-accent">
               <div
-                className="h-full rounded-full bg-indigo-500"
+                className="h-full rounded-full bg-primary"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className="mt-1 text-xs text-slate-500">{progress}% hoàn thành</p>
+            <p className="mt-1 text-xs text-muted">{progress}% hoàn thành</p>
           </div>
         )}
         <div className="mt-4">

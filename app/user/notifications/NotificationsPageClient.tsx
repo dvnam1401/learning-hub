@@ -36,8 +36,8 @@ export function NotificationsPageClient() {
 
   return (
     <div>
-      <h1 className="mb-2 text-2xl font-bold text-slate-900">Thông báo</h1>
-      <p className="mb-6 text-sm text-slate-500">
+      <h1 className="mb-2 text-2xl font-bold text-foreground">Thông báo</h1>
+      <p className="mb-6 text-sm text-muted">
         Cập nhật về khóa học và quyền truy cập của bạn
       </p>
 
@@ -57,20 +57,20 @@ export function NotificationsPageClient() {
               type="button"
               onClick={() => !n.read && markRead(n.id)}
               disabled={!!n.read}
-              className={`w-full rounded-xl border bg-white p-4 text-left shadow-sm transition-all duration-200 ${
+              className={`surface-card w-full p-4 text-left transition-all duration-200 ${
                 n.read
-                  ? "border-slate-100 opacity-70"
-                  : "border-indigo-100 hover:border-indigo-200 hover:shadow-md"
+                  ? "opacity-70"
+                  : "border-primary/30 hover:border-primary/50 hover:shadow-md"
               }`}
             >
               <div className="flex items-start justify-between gap-2">
-                <h3 className="font-medium text-slate-900">{n.title}</h3>
+                <h3 className="font-medium text-foreground">{n.title}</h3>
                 {!n.read && <Badge tone="blue">Mới</Badge>}
               </div>
               {n.body && (
-                <p className="mt-1 text-sm text-slate-500">{n.body}</p>
+                <p className="mt-1 text-sm text-muted">{n.body}</p>
               )}
-              <p className="mt-2 text-xs text-slate-400">
+              <p className="mt-2 text-xs text-muted">
                 {formatDateTime(n.created_at)}
               </p>
             </button>

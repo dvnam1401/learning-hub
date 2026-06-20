@@ -41,7 +41,7 @@ export function Modal({
       <button
         type="button"
         aria-label="Đóng"
-        className="absolute inset-0 animate-fade-in bg-slate-900/50 backdrop-blur-sm"
+        className="absolute inset-0 animate-fade-in bg-foreground/50 backdrop-blur-sm"
         onClick={onClose}
       />
       <div
@@ -59,7 +59,7 @@ export function Modal({
             type="button"
             onClick={onClose}
             aria-label="Đóng hộp thoại"
-            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            className="rounded-lg p-1.5 text-muted transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <X size={20} />
           </button>

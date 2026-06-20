@@ -50,12 +50,12 @@ export function SyncSettingsClient() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold">Đồng bộ dữ liệu</h1>
-      <div className="mb-6 rounded-xl bg-white p-6 shadow-sm">
+      <h1 className="mb-6 text-2xl font-bold text-foreground">Đồng bộ dữ liệu</h1>
+      <div className="mb-6 surface-card p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-sm text-slate-500">Lần build cuối</p>
-            <p className="font-medium">
+            <p className="text-sm text-muted">Lần build cuối</p>
+            <p className="font-medium text-foreground">
               {data?.lastBuild ?? "Chưa có"}
             </p>
           </div>
@@ -65,27 +65,27 @@ export function SyncSettingsClient() {
           </Button>
         </div>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-lg bg-slate-50 p-4">
-            <p className="text-sm text-slate-500">Khóa học</p>
-            <p className="text-2xl font-bold">
+          <div className="rounded-lg bg-accent p-4">
+            <p className="text-sm text-muted">Khóa học</p>
+            <p className="text-2xl font-bold text-foreground">
               {data?.stats.courseCount ?? 0}
             </p>
           </div>
-          <div className="rounded-lg bg-slate-50 p-4">
-            <p className="text-sm text-slate-500">Video</p>
-            <p className="text-2xl font-bold">
+          <div className="rounded-lg bg-accent p-4">
+            <p className="text-sm text-muted">Video</p>
+            <p className="text-2xl font-bold text-foreground">
               {data?.stats.videoCount ?? 0}
             </p>
           </div>
         </div>
-        <p className="mt-4 text-xs text-slate-500">
+        <p className="mt-4 text-xs text-muted">
           Production: chạy scanner → npm run build:catalog → deploy thư mục data/
         </p>
       </div>
-      <h2 className="mb-3 font-semibold">Lịch sử đồng bộ</h2>
-      <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-        <table className="w-full text-sm text-left">
-          <thead className="bg-slate-50 border-b">
+      <h2 className="mb-3 font-semibold text-foreground">Lịch sử đồng bộ</h2>
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <table className="w-full text-left text-sm text-foreground">
+          <thead className="border-b border-border bg-accent text-muted">
             <tr>
               <th className="p-3">Thời gian</th>
               <th className="p-3">Status</th>
@@ -95,7 +95,7 @@ export function SyncSettingsClient() {
           </thead>
           <tbody>
             {(data?.logs ?? []).map((log) => (
-              <tr key={log.id} className="border-b">
+              <tr key={log.id} className="border-b border-border">
                 <td className="p-3">{log.started_at}</td>
                 <td className="p-3">
                   <Badge

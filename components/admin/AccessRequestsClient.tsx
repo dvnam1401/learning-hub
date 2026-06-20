@@ -58,8 +58,8 @@ export function AccessRequestsClient() {
 
   return (
     <div>
-      <h1 className="mb-2 text-2xl font-bold text-slate-900">Yêu cầu cấp quyền</h1>
-      <p className="mb-6 text-sm text-slate-500">Quản lý yêu cầu mở khóa học</p>
+      <h1 className="mb-2 text-2xl font-bold text-foreground">Yêu cầu cấp quyền</h1>
+      <p className="mb-6 text-sm text-muted">Quản lý yêu cầu mở khóa học</p>
       <div className="mb-4 flex flex-wrap gap-1" role="tablist">
         {["all", "pending", "approved", "rejected"].map((f) => (
           <button
@@ -70,17 +70,17 @@ export function AccessRequestsClient() {
             onClick={() => setFilter(f)}
             className={`min-h-[44px] rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
               filter === f
-                ? "bg-indigo-50 text-indigo-600"
-                : "text-slate-600 hover:bg-slate-100"
+                ? "bg-primary/10 text-primary"
+                : "text-muted hover:bg-accent hover:text-foreground"
             }`}
           >
             {filterLabels[f]}
           </button>
         ))}
       </div>
-      <div className="overflow-x-auto rounded-xl bg-white shadow-sm">
-        <table className="w-full min-w-[640px] text-left text-sm">
-          <thead className="border-b bg-slate-50">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+        <table className="w-full min-w-[640px] text-left text-sm text-foreground">
+          <thead className="border-b border-border bg-accent text-muted">
             <tr>
               <th className="p-3">User</th>
               <th className="p-3">Khóa học</th>
@@ -102,10 +102,10 @@ export function AccessRequestsClient() {
               </tr>
             )}
             {requests.map((r) => (
-              <tr key={r.id} className="border-b transition-colors hover:bg-slate-50">
+              <tr key={r.id} className="border-b border-border transition-colors hover:bg-accent">
                 <td className="p-3 font-medium">{r.username}</td>
                 <td className="p-3">{r.courseName}</td>
-                <td className="p-3 text-slate-500">{formatDateTime(r.created_at)}</td>
+                <td className="p-3 text-muted">{formatDateTime(r.created_at)}</td>
                 <td className="p-3">
                   <Badge tone={tone(r.status)}>{r.status}</Badge>
                 </td>

@@ -1,7 +1,7 @@
 import type { AdminCatalogNode } from "./categories";
 import type { GrantStatus } from "./folder-access";
 
-export type PermissionTreeNode = AdminCatalogNode & {
+export type PermissionTreeNode = Omit<AdminCatalogNode, "children"> & {
   grantStatus: GrantStatus;
   children: PermissionTreeNode[];
 };

@@ -110,7 +110,7 @@ export function LoginPageClient() {
               <button
                 type="button"
                 aria-label={show ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-400 transition-colors hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={() => setShow(!show)}
               >
                 {show ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -118,7 +118,7 @@ export function LoginPageClient() {
             </div>
           </div>
           {error && (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-red-600" role="alert">
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-red-600 dark:bg-red-950/40 dark:text-red-400" role="alert">
               {error}
             </p>
           )}

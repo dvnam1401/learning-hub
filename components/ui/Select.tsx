@@ -11,14 +11,14 @@ export function Select({
   return (
     <div className="relative">
       <select
-        className={`w-full cursor-pointer appearance-none rounded-lg border border-slate-200 bg-white px-4 py-2.5 pr-10 text-sm text-slate-800 outline-none transition-colors hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 ${className}`}
+        className={`w-full cursor-pointer appearance-none rounded-lg border border-border bg-card px-4 py-2.5 pr-10 text-sm text-foreground outline-none transition-colors hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/20 ${className}`}
         {...props}
       >
         {children}
       </select>
       <ChevronDown
         size={18}
-        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted"
       />
     </div>
   );

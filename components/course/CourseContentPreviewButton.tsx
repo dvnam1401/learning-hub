@@ -51,10 +51,10 @@ export function CourseContentPreviewButton({
         size="lg"
       >
         {loading && (
-          <p className="py-8 text-center text-sm text-slate-500">Đang tải...</p>
+          <p className="py-8 text-center text-sm text-muted">Đang tải...</p>
         )}
         {error && (
-          <p className="py-8 text-center text-sm text-red-500">{error}</p>
+          <p className="py-8 text-center text-sm text-red-600 dark:text-red-400">{error}</p>
         )}
         {!loading && !error && tree && <CourseCurriculumPreview tree={tree} />}
       </Modal>

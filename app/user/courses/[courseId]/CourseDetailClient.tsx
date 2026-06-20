@@ -80,11 +80,11 @@ export function CourseDetailClient({ courseId }: { courseId: string }) {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <p className="mb-2 text-sm text-slate-500">
+      <p className="mb-2 text-sm text-muted">
         {getTopCategoryName(course.path)}
       </p>
-      <h1 className="mb-2 text-3xl font-bold text-slate-900">{course.name}</h1>
-      <p className="mb-6 text-sm text-slate-500">
+      <h1 className="mb-2 text-3xl font-bold text-foreground">{course.name}</h1>
+      <p className="mb-6 text-sm text-muted">
         {totalVideos} bài học · {course.videoCount} video
       </p>
       {resumeId && (

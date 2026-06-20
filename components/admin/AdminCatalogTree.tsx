@@ -38,14 +38,14 @@ function NodeRow({
       <button
         type="button"
         onClick={() => node.courseId && onSelectCourse?.(node.courseId)}
-        className={`flex w-full items-center gap-2 py-1.5 text-left text-sm hover:bg-slate-50 ${
-          node.hidden ? "text-slate-400" : "text-slate-700"
+        className={`flex w-full items-center gap-2 py-1.5 text-left text-sm hover:bg-accent ${
+          node.hidden ? "text-muted" : "text-foreground"
         }`}
         style={{ paddingLeft: pad }}
       >
         <Video size={14} className="shrink-0 text-indigo-500" />
         <span className="line-clamp-1 flex-1">{node.name}</span>
-        <span className="shrink-0 text-xs text-slate-400">
+        <span className="shrink-0 text-xs text-muted">
           {node.videoCount} video
         </span>
       </button>
@@ -57,7 +57,7 @@ function NodeRow({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center gap-2 py-1.5 text-left text-sm font-medium text-slate-800 hover:bg-slate-50"
+        className="flex w-full items-center gap-2 py-1.5 text-left text-sm font-medium text-foreground hover:bg-accent"
         style={{ paddingLeft: pad }}
       >
         {hasChildren ? (
@@ -71,7 +71,7 @@ function NodeRow({
           <Folder size={14} className="text-amber-600" />
         )}
         <span className="line-clamp-1 flex-1">{node.name}</span>
-        <span className="shrink-0 text-xs text-slate-400">
+        <span className="shrink-0 text-xs text-muted">
           {node.courseCount} khóa
         </span>
       </button>
@@ -96,7 +96,7 @@ export function AdminCatalogTree({
   onSelectCourse?: (id: string) => void;
 }) {
   return (
-    <div className="max-h-[65vh] overflow-y-auto rounded-xl border border-slate-200 bg-white p-2">
+    <div className="max-h-[65vh] overflow-y-auto rounded-xl border border-border bg-card p-2">
       {tree.map((node) => (
         <NodeRow
           key={node.id}
