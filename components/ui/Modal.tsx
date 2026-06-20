@@ -3,15 +3,22 @@
 import { useEffect, type ReactNode } from "react";
 import { X } from "lucide-react";
 
+const sizeStyles = {
+  md: "max-w-md",
+  lg: "max-w-2xl",
+};
+
 export function Modal({
   open,
   onClose,
   title,
+  size = "md",
   children,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
+  size?: "md" | "lg";
   children: ReactNode;
 }) {
   useEffect(() => {
@@ -41,7 +48,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="relative z-10 w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+        className={`relative z-10 w-full ${sizeStyles[size]} rounded-xl bg-white p-6 shadow-xl`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-5 flex items-center justify-between">

@@ -1,6 +1,6 @@
 import { createReadStream, createWriteStream, existsSync, mkdirSync, statSync } from "fs";
 import path from "path";
-import { getDrive } from "@/lib/drive/client";
+import { getDriveForFile } from "@/lib/drive/client";
 import {
   downloadBlockedMessage,
   getDriveFileMetadata,
@@ -53,17 +53,19 @@ export function readCachedVideoStream(fileId: string, range?: string) {
 export async function downloadVideoToCache(
   fileId: string
 ): Promise<{ ok: true; path: string } | { ok: false; message: string }> {
-  const drive = getDrive();
-  if (!drive) {
-    return { ok: false, message: "Google Drive chưa cấu hình" };
-  }
-
   const meta = await getDriveFileMetadata(fileId);
   if (!meta) {
     return { ok: false, message: "Không đọc được metadata file" };
   }
   if (meta.capabilities?.canDownload === false) {
     return { ok: false, message: downloadBlockedMessage(meta) };
+  }
+
+  let drive;
+  try {
+    drive = await getDriveForFile(fileId);
+  } catch {
+    return { ok: false, message: "Không truy cập được file trên Drive" };
   }
 
   mkdirSync(CACHE_DIR, { recursive: true });

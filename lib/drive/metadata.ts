@@ -1,4 +1,4 @@
-import { getDrive } from "@/lib/drive/client";
+import { getDriveForFile } from "@/lib/drive/client";
 
 export const DRIVE_FILE_FIELDS =
   "id,name,mimeType,size,capabilities,resourceKey,owners,viewersCanCopyContent";
@@ -17,8 +17,7 @@ export type DriveFileMeta = {
 export async function getDriveFileMetadata(
   fileId: string
 ): Promise<DriveFileMeta | null> {
-  const drive = getDrive();
-  if (!drive) return null;
+  const drive = await getDriveForFile(fileId);
   const { data } = await drive.files.get({
     fileId,
     supportsAllDrives: true,

@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { jsonError, jsonOk } from "@/lib/api/response";
+import { isHiddenUserCourse } from "@/lib/catalog/hidden-categories";
+import { isBundledGiftCourse } from "@/lib/catalog/bundled-gift";
 import { findCourseInIndex } from "@/lib/catalog/reader";
 import { dbGet, dbRun, newId } from "@/lib/db/client";
 
@@ -12,8 +14,15 @@ export async function POST(request: NextRequest) {
   const courseId = String(body.courseId ?? "");
   const note = body.note ? String(body.note) : null;
 
-  if (!findCourseInIndex(courseId)) {
+  const course = findCourseInIndex(courseId);
+  if (!course) {
     return jsonError("Khóa học không tồn tại");
+  }
+  if (user.role !== "ADMIN" && isHiddenUserCourse(course)) {
+    return jsonError("Khóa học không tồn tại");
+  }
+  if (isBundledGiftCourse(course)) {
+    return jsonError("Khóa tặng kèm được mở cùng khóa chính trong nhóm");
   }
 
   const existing = await dbGet(

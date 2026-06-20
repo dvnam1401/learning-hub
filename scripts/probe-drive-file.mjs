@@ -1,62 +1,36 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import { google } from "googleapis";
+import { loadEnvLocal } from "./lib/load-env.mjs";
+import { createGoogleAuth } from "./lib/google-auth.mjs";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fileId = process.argv[2] || "11sGyyvTfJMcyWUG9jvoDkzzmH0E-Gx52";
 
-function loadEnv() {
-  const envPath = path.join(__dirname, "..", ".env.local");
-  if (!fs.existsSync(envPath)) return;
-  for (const line of fs.readFileSync(envPath, "utf8").split("\n")) {
-    const t = line.trim();
-    if (!t || t.startsWith("#")) continue;
-    const i = t.indexOf("=");
-    if (i === -1) continue;
-    const k = t.slice(0, i).trim();
-    let v = t.slice(i + 1).trim();
-    if (
-      (v.startsWith('"') && v.endsWith('"')) ||
-      (v.startsWith("'") && v.endsWith("'"))
-    ) {
-      v = v.slice(1, -1);
-    }
-    if (!process.env[k]) process.env[k] = v;
-  }
-}
+loadEnvLocal();
 
-loadEnv();
-
-const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN } =
-  process.env;
-
-if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REFRESH_TOKEN) {
-  console.error("Missing GOOGLE_* in .env.local");
+const auth = createGoogleAuth();
+if (!auth) {
+  console.error("Thiếu GOOGLE_SERVICE_ACCOUNT_* hoặc GOOGLE_* OAuth trong .env.local");
   process.exit(1);
 }
 
-const oauth2 = new google.auth.OAuth2(
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET
-);
-oauth2.setCredentials({ refresh_token: GOOGLE_REFRESH_TOKEN });
-const drive = google.drive({ version: "v3", auth: oauth2 });
+console.log("auth:", auth.mode, auth.email ?? "");
+const drive = google.drive({ version: "v3", auth: auth.client });
 
 const fields =
   "id,name,mimeType,size,capabilities,resourceKey,driveId,owners,viewersCanCopyContent,copyRequiresWriterPermission,webViewLink,webContentLink,permissionIds,hasAugmentedPermissions,linkShareMetadata";
 
 async function main() {
-  const token = await oauth2.getAccessToken();
+  const token = await auth.client.getAccessToken();
   console.log("access_token:", token.token ? "ok" : "missing");
 
-  try {
-    const { data: me } = await google
-      .oauth2({ version: "v2", auth: oauth2 })
-      .userinfo.get();
-    console.log("oauth_user:", me.email);
-  } catch (e) {
-    console.log("oauth_user: (need userinfo scope?)", e.message);
+  if (auth.mode === "oauth") {
+    try {
+      const { data: me } = await google
+        .oauth2({ version: "v2", auth: auth.client })
+        .userinfo.get();
+      console.log("oauth_user:", me.email);
+    } catch (e) {
+      console.log("oauth_user: (need userinfo scope?)", e.message);
+    }
   }
 
   try {

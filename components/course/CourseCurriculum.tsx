@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ChevronDown, ChevronRight, PlayCircle } from "lucide-react";
 import type { CourseTreeNode } from "@/lib/types";
+import { firstVideoInNode } from "@/lib/catalog/tree-utils";
 
 function countVideos(node: CourseTreeNode): number {
   if (node.type === "video") return 1;
@@ -40,18 +41,35 @@ function Section({
   const isLeafGroup = node.children.every((c) => c.type === "video");
 
   if (isLeafGroup) {
+    const startVideo = firstVideoInNode(node);
     return (
       <div>
-        <button
-          type="button"
-          onClick={() => setOpen(!open)}
-          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-800 hover:bg-slate-50"
+        <div
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
           style={{ paddingLeft: 12 + depth * 16 }}
         >
-          {open ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-          <span className="flex-1">{node.name}</span>
-          <span className="text-xs text-slate-400">{videos} bài</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => setOpen(!open)}
+            className="shrink-0 text-slate-500"
+          >
+            {open ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          </button>
+          {startVideo ? (
+            <Link
+              href={`/user/courses/${courseId}/watch/${startVideo.id}`}
+              className="flex flex-1 items-center gap-2 min-w-0"
+            >
+              <span className="flex-1">{node.name}</span>
+              <span className="text-xs text-slate-400 shrink-0">{videos} bài</span>
+            </Link>
+          ) : (
+            <>
+              <span className="flex-1">{node.name}</span>
+              <span className="text-xs text-slate-400">{videos} bài</span>
+            </>
+          )}
+        </div>
         {open && (
           <div className="space-y-0.5">
             {node.children.map((child) => (

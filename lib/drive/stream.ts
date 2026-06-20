@@ -1,4 +1,4 @@
-import { getDrive } from "@/lib/drive/client";
+import { getDriveForFile, mapOAuthError } from "@/lib/drive/client";
 import {
   downloadBlockedMessage,
   getDriveFileMetadata,
@@ -15,6 +15,9 @@ export { DriveStreamError } from "@/lib/drive/errors";
 
 function mapDriveError(err: unknown): DriveStreamError {
   if (err instanceof DriveStreamError) return err;
+
+  const oauth = mapOAuthError(err);
+  if (oauth) return oauth;
 
   const gaxios = err as {
     response?: {
@@ -60,11 +63,7 @@ async function getDriveAltMediaStream(
   contentRange?: string;
   status: number;
 }> {
-  const drive = getDrive();
-  if (!drive) {
-    throw new DriveStreamError("Google Drive chưa cấu hình", 503);
-  }
-
+  const drive = await getDriveForFile(fileId);
   const meta = await getDriveFileMetadata(fileId);
   if (!meta) {
     throw new DriveStreamError("Không đọc được metadata file", 404);

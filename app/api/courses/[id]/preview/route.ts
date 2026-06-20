@@ -5,7 +5,8 @@ import {
   getCourseTree,
 } from "@/lib/catalog/reader";
 import { isHiddenUserCourse } from "@/lib/catalog/hidden-categories";
-import { getOverride, hasCourseAccess } from "@/lib/db/repositories";
+import { toPreviewTree } from "@/lib/catalog/preview-tree";
+import { getOverride } from "@/lib/db/repositories";
 
 export async function GET(
   _req: Request,
@@ -21,18 +22,17 @@ export async function GET(
     return jsonError("Không tìm thấy khóa học", 404);
   }
 
-  const allowed = await hasCourseAccess(user.id, id, user.role);
-  if (!allowed) return jsonError("Chưa được cấp quyền", 403);
-
   const tree = getCourseTree(id);
+  if (!tree) return jsonError("Không tìm thấy nội dung", 404);
+
   const override = await getOverride(id);
 
   return jsonOk({
     course: {
-      ...course,
+      id: course.id,
       name: override?.display_name || course.name,
-      thumbnailUrl: override?.thumbnail_url ?? null,
+      videoCount: course.videoCount,
     },
-    tree,
+    tree: toPreviewTree(tree),
   });
 }

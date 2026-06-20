@@ -12,6 +12,8 @@
 
 credentials.json
 token.json
+secrets/
+*.service-account.json
 .dev.vars
 
 .vercel

@@ -133,6 +133,46 @@ export function filterByCategoryPath(
   );
 }
 
+export type CourseSubfolderGroup<T extends { path: string; name: string }> = {
+  key: string;
+  name: string;
+  courses: T[];
+};
+
+export function groupCoursesBySubCategory<T extends { path: string; name: string }>(
+  courses: T[]
+): CourseSubfolderGroup<T>[] {
+  const map = new Map<string, { name: string; courses: T[] }>();
+
+  for (const course of courses) {
+    const parts = pathParts(course.path);
+    const subRaw = parts[2] ?? "";
+    const key = subRaw ? stripOrderPrefix(subRaw) : "__root__";
+    const label = subRaw || "Khác";
+    const hit = map.get(key);
+    if (hit) {
+      hit.name = pickDisplayName(hit.name, label);
+      hit.courses.push(course);
+    } else {
+      map.set(key, { name: label, courses: [course] });
+    }
+  }
+
+  return [...map.entries()]
+    .map(([key, group]) => ({
+      key,
+      name: group.name,
+      courses: [...group.courses].sort((a, b) =>
+        compareFolderNames(a.name, b.name)
+      ),
+    }))
+    .sort((a, b) => {
+      if (a.key === "__root__") return 1;
+      if (b.key === "__root__") return -1;
+      return compareFolderNames(a.name, b.name);
+    });
+}
+
 export function buildAdminCatalogTree(
   courses: CatalogCourse[],
   hiddenIds: Set<string>

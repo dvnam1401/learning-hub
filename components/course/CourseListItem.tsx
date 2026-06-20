@@ -1,18 +1,25 @@
 import Link from "next/link";
 import { Clock, Lock, LockOpen } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { CourseContentPreviewButton } from "@/components/course/CourseContentPreviewButton";
 
 export function CourseListItem({
   id,
   name,
   videoCount,
   unlocked,
+  bundledGift,
+  accessPending,
+  requesting,
   onRequestAccess,
 }: {
   id: string;
   name: string;
   videoCount: number;
   unlocked: boolean;
+  bundledGift?: boolean;
+  accessPending?: boolean;
+  requesting?: boolean;
   onRequestAccess?: () => void;
 }) {
   return (
@@ -31,18 +38,28 @@ export function CourseListItem({
           {videoCount} bài học
         </p>
       </div>
-      <div className="shrink-0">
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+        <CourseContentPreviewButton courseId={id} courseName={name} />
         {unlocked ? (
           <Link href={`/user/courses/${id}`}>
             <Button variant="primary">Vào học</Button>
           </Link>
+        ) : bundledGift ? (
+          <span className="rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-500">
+            Tặng kèm cùng nhóm
+          </span>
+        ) : accessPending ? (
+          <Button variant="secondary" disabled>
+            Đang chờ duyệt
+          </Button>
         ) : (
           <Button
             variant="primary"
             className="bg-orange-500 hover:bg-orange-600"
+            disabled={requesting}
             onClick={onRequestAccess}
           >
-            Yêu cầu mở
+            {requesting ? "Đang gửi..." : "Yêu cầu mở"}
           </Button>
         )}
       </div>

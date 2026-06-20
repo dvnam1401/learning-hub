@@ -15,6 +15,8 @@ export function CourseSearchResults({
   limit,
   onPageChange,
   onRequestAccess,
+  pendingCourseIds,
+  requestingCourseId,
   variant = "user",
   onSelectCourse,
 }: {
@@ -25,6 +27,8 @@ export function CourseSearchResults({
   limit: number;
   onPageChange: (page: number) => void;
   onRequestAccess?: (id: string) => void;
+  pendingCourseIds?: Set<string>;
+  requestingCourseId?: string | null;
   variant?: "user" | "admin";
   onSelectCourse?: (id: string) => void;
 }) {
@@ -89,8 +93,15 @@ export function CourseSearchResults({
               name={c.name}
               videoCount={c.videoCount}
               unlocked={c.unlocked}
+              accessPending={
+                c.accessPending || pendingCourseIds?.has(c.id) || false
+              }
+              bundledGift={c.bundledGift}
+              requesting={requestingCourseId === c.id}
               onRequestAccess={
-                onRequestAccess ? () => onRequestAccess(c.id) : undefined
+                onRequestAccess && !c.bundledGift
+                  ? () => onRequestAccess(c.id)
+                  : undefined
               }
             />
             <p className="mt-1 pl-16 text-xs text-slate-400 line-clamp-1">

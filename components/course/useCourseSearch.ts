@@ -17,6 +17,8 @@ export type CourseSearchItem = {
   videoCount: number;
   path: string;
   unlocked: boolean;
+  accessPending?: boolean;
+  bundledGift?: boolean;
   hidden?: boolean;
 };
 

@@ -3,9 +3,7 @@ import { jsonError, jsonOk } from "@/lib/api/response";
 import { isDriveConfigured } from "@/lib/drive/client";
 import { DriveStreamError } from "@/lib/drive/errors";
 import {
-  getPlaybackPlan,
-  getQualityOptions,
-  planToManifest,
+  getPlaybackManifest,
 } from "@/lib/drive/playback";
 
 export async function GET(
@@ -23,11 +21,8 @@ export async function GET(
   const itag = new URL(req.url).searchParams.get("itag");
 
   try {
-    const [plan, qualities] = await Promise.all([
-      getPlaybackPlan(fileId, itag),
-      getQualityOptions(fileId),
-    ]);
-    return jsonOk(planToManifest(fileId, plan, qualities));
+    const manifest = await getPlaybackManifest(fileId, itag);
+    return jsonOk(manifest);
   } catch (err) {
     if (err instanceof DriveStreamError) {
       return jsonError(err.message, err.status);

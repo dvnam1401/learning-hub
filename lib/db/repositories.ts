@@ -1,4 +1,9 @@
 import { getGiftCourseIds, isGiftCourse } from "@/lib/catalog/gift";
+import {
+  computeGrantedSubfolders,
+  getBundledGiftForCourse,
+  isBundledGiftUnlocked,
+} from "@/lib/catalog/bundled-gift";
 import { findCourseInIndex } from "@/lib/catalog/reader";
 import { dbGet, dbQuery, dbRun, newId } from "./client";
 import type { CourseOverride, SessionUser } from "@/lib/types";
@@ -41,11 +46,49 @@ export async function hasCourseAccess(
   if (role === "ADMIN") return true;
   const course = findCourseInIndex(courseId);
   if (course && isGiftCourse(course)) return true;
+  const granted = await getUserCourseIds(userId);
+  const grantedSet = new Set(granted);
+  if (course && isBundledGiftUnlocked(course, grantedSet, computeGrantedSubfolders(granted))) {
+    return true;
+  }
   const row = await dbGet(
     "SELECT 1 FROM user_courses WHERE user_id = ? AND course_id = ?",
     [userId, courseId]
   );
   return Boolean(row);
+}
+
+export async function grantCourseToUser(
+  userId: string,
+  courseId: string,
+  grantedBy: string | null
+): Promise<boolean> {
+  const exists = await dbGet(
+    "SELECT id FROM user_courses WHERE user_id = ? AND course_id = ?",
+    [userId, courseId]
+  );
+  if (exists) return false;
+  await dbRun(
+    `INSERT INTO user_courses (id, user_id, course_id, granted_by) VALUES (?, ?, ?, ?)`,
+    [newId(), userId, courseId, grantedBy]
+  );
+  return true;
+}
+
+export async function grantCourseWithBundledGift(
+  userId: string,
+  courseId: string,
+  grantedBy: string | null
+): Promise<string[]> {
+  const granted: string[] = [];
+  if (await grantCourseToUser(userId, courseId, grantedBy)) {
+    granted.push(courseId);
+  }
+  const gift = getBundledGiftForCourse(courseId);
+  if (gift && (await grantCourseToUser(userId, gift.id, grantedBy))) {
+    granted.push(gift.id);
+  }
+  return granted;
 }
 
 export async function grantGiftCoursesToUser(
@@ -104,6 +147,16 @@ export async function countPendingRequests(): Promise<number> {
     "SELECT COUNT(*) as c FROM access_requests WHERE status = 'pending'"
   );
   return row?.c ?? 0;
+}
+
+export async function getPendingAccessRequestCourseIds(
+  userId: string
+): Promise<Set<string>> {
+  const rows = await dbQuery<{ course_id: string }>(
+    "SELECT course_id FROM access_requests WHERE user_id = ? AND status = 'pending'",
+    [userId]
+  );
+  return new Set(rows.map((r) => r.course_id));
 }
 
 export function toSessionUser(row: {

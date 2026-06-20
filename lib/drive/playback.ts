@@ -1,6 +1,10 @@
 import { Readable } from "stream";
-import { getOAuthClient } from "@/lib/drive/client";
+import { getGoogleAccessTokenForFile } from "@/lib/drive/client";
 import { DriveStreamError } from "@/lib/drive/errors";
+import {
+  downloadBlockedMessage,
+  getDriveFileMetadata,
+} from "@/lib/drive/metadata";
 import {
   type PlaybackPlan,
   type QualityOption,
@@ -16,15 +20,7 @@ const mapCache = new Map<string, { map: string; exp: number }>();
 export type PlaybackTrack = "default" | "video" | "audio";
 
 async function fetchStreamMap(fileId: string): Promise<string> {
-  const auth = getOAuthClient();
-  if (!auth) {
-    throw new DriveStreamError("Google Drive chưa cấu hình", 503);
-  }
-
-  const { token } = await auth.getAccessToken();
-  if (!token) {
-    throw new DriveStreamError("Không lấy được access token Google", 503);
-  }
+  const token = await getGoogleAccessTokenForFile(fileId);
 
   const infoUrl = new URL("https://docs.google.com/get_video_info");
   infoUrl.searchParams.set("docid", fileId);
@@ -32,6 +28,15 @@ async function fetchStreamMap(fileId: string): Promise<string> {
 
   const infoRes = await fetch(infoUrl.toString());
   const infoText = await infoRes.text();
+
+  if (!infoText.includes("status=")) {
+    throw new DriveStreamError(
+      "Không lấy được stream playback từ Drive",
+      infoRes.status === 404 ? 404 : 502,
+      "playbackUnavailable"
+    );
+  }
+
   const info = new URLSearchParams(infoText);
 
   if (info.get("status") !== "ok") {
@@ -116,8 +121,7 @@ export function planToManifest(
   fileId: string,
   plan: PlaybackPlan,
   qualities: QualityOption[]
-) {
-  const itag =
+) {  const itag =
     plan.mode === "single" ? plan.itag : plan.video.itag;
   const base = `/api/videos/${fileId}/stream`;
   const withItag = (extra: Record<string, string>) => {
@@ -150,6 +154,48 @@ export function planToManifest(
     qualities,
     selectedItag: itag,
   };
+}
+
+function altMediaManifest(fileId: string) {
+  return {
+    mode: "single" as const,
+    height: 0,
+    itag: null,
+    quality: null,
+    streamUrl: `/api/videos/${fileId}/stream`,
+    qualities: [] as QualityOption[],
+    selectedItag: null,
+  };
+}
+
+export async function getPlaybackManifest(fileId: string, itag?: string | null) {
+  try {
+    const [plan, qualities] = await Promise.all([
+      getPlaybackPlan(fileId, itag),
+      getQualityOptions(fileId),
+    ]);
+    return planToManifest(fileId, plan, qualities);
+  } catch (playbackErr) {
+    const meta = await getDriveFileMetadata(fileId).catch(() => null);
+
+    if (meta?.capabilities?.canDownload === false) {
+      if (playbackErr instanceof DriveStreamError) {
+        throw new DriveStreamError(
+          `${playbackErr.message} ${downloadBlockedMessage(meta)}`,
+          playbackErr.status,
+          playbackErr.code
+        );
+      }
+      throw new DriveStreamError(downloadBlockedMessage(meta), 403);
+    }
+
+    if (meta) {
+      return altMediaManifest(fileId);
+    }
+
+    if (playbackErr instanceof DriveStreamError) throw playbackErr;
+    throw new DriveStreamError("Không lấy được thông tin phát", 502);
+  }
 }
 
 async function proxyUrl(

@@ -8,7 +8,14 @@ import {
 } from "@/lib/catalog/categories";
 import { isGiftCourse } from "@/lib/catalog/gift";
 import {
+  computeGrantedSubfolders,
+  isBundledGiftCourse,
+  isBundledGiftUnlocked,
+} from "@/lib/catalog/bundled-gift";
+import { excludeHiddenUserCourses } from "@/lib/catalog/hidden-categories";
+import {
   getCourseOverrides,
+  getPendingAccessRequestCourseIds,
   getUserCourseIds,
 } from "@/lib/db/repositories";
 
@@ -27,6 +34,10 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(100, Math.max(1, parseInt(limitParam ?? "50", 10)));
   const granted = await getUserCourseIds(user.id);
   const grantedSet = new Set(granted);
+  const pendingAccess =
+    user.role === "ADMIN"
+      ? new Set<string>()
+      : await getPendingAccessRequestCourseIds(user.id);
   const overrides = await getCourseOverrides();
   const hiddenSet = new Set(
     overrides.filter((o) => o.hidden).map((o) => o.course_id)
@@ -34,6 +45,9 @@ export async function GET(request: NextRequest) {
   const overrideMap = new Map(overrides.map((o) => [o.course_id, o]));
 
   let courses = getCatalogIndex().filter((c) => !hiddenSet.has(c.id));
+  if (user.role !== "ADMIN") {
+    courses = excludeHiddenUserCourses(courses);
+  }
 
   if (category) {
     courses = filterByTopCategory(courses, category);
@@ -50,8 +64,14 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  const grantedSubfolders =
+    user.role === "ADMIN" ? new Set<string>() : computeGrantedSubfolders(granted);
+
   const userHasCourse = (c: (typeof courses)[0]) =>
-    user.role === "ADMIN" || grantedSet.has(c.id) || isGiftCourse(c);
+    user.role === "ADMIN" ||
+    grantedSet.has(c.id) ||
+    isGiftCourse(c) ||
+    isBundledGiftUnlocked(c, grantedSet, grantedSubfolders);
 
   if (user.role !== "ADMIN" && filter === "mine") {
     courses = courses.filter((c) => userHasCourse(c));
@@ -59,12 +79,17 @@ export async function GET(request: NextRequest) {
 
   const result = courses.map((c) => {
     const o = overrideMap.get(c.id);
+    const unlocked = userHasCourse(c);
+    const bundledGift = isBundledGiftCourse(c);
     return {
       ...c,
       name: o?.display_name || c.name,
       thumbnailUrl: o?.thumbnail_url ?? null,
       hidden: !!o?.hidden,
-      unlocked: userHasCourse(c),
+      unlocked,
+      bundledGift,
+      accessPending:
+        !unlocked && !bundledGift && pendingAccess.has(c.id),
     };
   });
 

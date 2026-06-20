@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth/session";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { isGiftCourse } from "@/lib/catalog/gift";
 import { getCatalogIndex } from "@/lib/catalog/reader";
-import { createNotification } from "@/lib/db/repositories";
+import { createNotification, grantCourseWithBundledGift } from "@/lib/db/repositories";
 import { dbGet, dbQuery, dbRun, newId } from "@/lib/db/client";
 
 export async function GET(request: NextRequest) {
@@ -41,10 +41,7 @@ export async function POST(request: NextRequest) {
     [userId, courseId]
   );
   if (!exists) {
-    await dbRun(
-      `INSERT INTO user_courses (id, user_id, course_id, granted_by) VALUES (?, ?, ?, ?)`,
-      [newId(), userId, courseId, user.id]
-    );
+    const granted = await grantCourseWithBundledGift(userId, courseId, user.id);
     const course = getCatalogIndex().find((c) => c.id === courseId);
     await createNotification(
       userId,
@@ -52,6 +49,17 @@ export async function POST(request: NextRequest) {
       "Khóa học mới được cấp",
       course?.name ?? courseId
     );
+    if (granted.length > 1) {
+      const gift = getCatalogIndex().find((c) => c.id === granted[1]);
+      if (gift) {
+        await createNotification(
+          userId,
+          "COURSE_GRANTED",
+          "Khóa tặng kèm được cấp",
+          gift.name
+        );
+      }
+    }
   }
 
   return jsonOk({ ok: true });

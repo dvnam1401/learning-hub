@@ -6,6 +6,7 @@ import type {
   CourseTreeNode,
   SearchIndexEntry,
 } from "@/lib/types";
+import { sortCourseTree } from "@/lib/catalog/tree-utils";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 
@@ -33,7 +34,8 @@ export function getCatalogStats(): {
 export function getCourseTree(courseId: string): CourseTreeNode | null {
   const file = path.join(DATA_DIR, "courses", `${courseId}.json`);
   if (!fs.existsSync(file)) return null;
-  return JSON.parse(fs.readFileSync(file, "utf8")) as CourseTreeNode;
+  const tree = JSON.parse(fs.readFileSync(file, "utf8")) as CourseTreeNode;
+  return sortCourseTree(tree);
 }
 
 export function getSearchIndex(): SearchIndexEntry[] {

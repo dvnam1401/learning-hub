@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth/session";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { findCourseInIndex } from "@/lib/catalog/reader";
 import { isGiftCourse } from "@/lib/catalog/gift";
+import { isHiddenUserCourse } from "@/lib/catalog/hidden-categories";
 import { searchCatalog } from "@/lib/catalog/search";
 import { getUserCourseIds } from "@/lib/db/repositories";
 
@@ -11,7 +12,13 @@ export async function GET(request: NextRequest) {
   if (!user) return jsonError("Unauthorized", 401);
 
   const q = request.nextUrl.searchParams.get("q") ?? "";
-  const results = searchCatalog(q);
+  let results = searchCatalog(q);
+  if (user.role !== "ADMIN") {
+    results = results.filter((r) => {
+      const course = findCourseInIndex(r.courseId);
+      return course && !isHiddenUserCourse(course);
+    });
+  }
   const granted = new Set(await getUserCourseIds(user.id));
 
   return jsonOk({
